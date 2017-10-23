@@ -7,3 +7,6 @@
 [submodule "Bastard"]
 	path = Bastard
 	url = https://github.com/sadmat/Bastard.git
+[submodule "NeuralNetwork"]
+	path = NeuralNetwork
+	url = https://github.com/sadmat/NeuralNetwork.git

@@ -3,6 +3,8 @@ TEMPLATE = subdirs
 SUBDIRS += \
     TwoOhFourEightCore \
     Stinky \
-    Bastard
+    Bastard \
+    NeuralNetwork
 
-Stinky.depends = TwoOhFourEightCore
+Stinky.depends = TwoOhFourEightCore NeuralNetwork
+Bastard.depends = TwoOhFourEightCore NeuralNetwork
