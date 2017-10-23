@@ -1,0 +1,6 @@
+[submodule "Stinky"]
+	path = Stinky
+	url = https://github.com/sadmat/Stinky.git
+[submodule "TwoOhFourEightCore"]
+	path = TwoOhFourEightCore
+	url = https://github.com/sadmat/TwoOhFourEightCore.git
