@@ -2,6 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     TwoOhFourEightCore \
-    Stinky
+    Stinky \
+    Bastard
 
 Stinky.depends = TwoOhFourEightCore

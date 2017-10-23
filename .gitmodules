@@ -4,3 +4,6 @@
 [submodule "TwoOhFourEightCore"]
 	path = TwoOhFourEightCore
 	url = https://github.com/sadmat/TwoOhFourEightCore.git
+[submodule "Bastard"]
+	path = Bastard
+	url = https://github.com/sadmat/Bastard.git
