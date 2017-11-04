@@ -1,12 +1,16 @@
 [submodule "Stinky"]
 	path = Stinky
 	url = https://github.com/sadmat/Stinky.git
+	branch = master
 [submodule "TwoOhFourEightCore"]
 	path = TwoOhFourEightCore
 	url = https://github.com/sadmat/TwoOhFourEightCore.git
+	branch = master
 [submodule "Bastard"]
 	path = Bastard
 	url = https://github.com/sadmat/Bastard.git
+	branch = master
 [submodule "NeuralNetwork"]
 	path = NeuralNetwork
 	url = https://github.com/sadmat/NeuralNetwork.git
+	branch = master
