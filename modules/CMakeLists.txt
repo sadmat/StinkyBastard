@@ -1,0 +1,2 @@
+add_subdirectory(Game2048Core)
+add_subdirectory(NeuralNetwork)
