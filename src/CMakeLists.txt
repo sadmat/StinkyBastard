@@ -7,7 +7,7 @@ set(SOURCES helper.cpp
             gamewidget.cpp
             keyboardgamecontroller.cpp
             launcher.cpp
-            learningsetmaker.cpp
+            learningsetsmaker.cpp
             networkcreator.cpp
             networkoutputconverter.cpp
             networkteacher.cpp
@@ -24,7 +24,7 @@ set(HEADERS application.h
             gamewidget.h
             keyboardgamecontroller.h
             launcher.h
-            learningsetmaker.h
+            learningsetsmaker.h
             networkcreator.h
             networkoutputconverter.h
             networkteacher.h
