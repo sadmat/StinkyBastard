@@ -12,10 +12,10 @@ namespace nn2048
 class GameWidget;
 class GameController;
 
-class BastardApplication : public Wt::WApplication
+class WebApplication : public Wt::WApplication
 {
 public:
-    BastardApplication(const Wt::WEnvironment &env, const NeuralNetwork::Network *network = nullptr);
+    WebApplication(const Wt::WEnvironment &env, const NeuralNetwork::Network *network = nullptr);
 
 protected:
     void setupGameController(const NeuralNetwork::Network *network);

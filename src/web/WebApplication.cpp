@@ -23,7 +23,7 @@ using namespace Game2048Core;
 namespace nn2048
 {
 
-BastardApplication::BastardApplication(const Wt::WEnvironment &env, const NeuralNetwork::Network *network):
+WebApplication::WebApplication(const Wt::WEnvironment &env, const NeuralNetwork::Network *network):
     Wt::WApplication(env),
     _gameCore(std::make_unique<GameCore>(GAME_BOARD_SIZE)),
     _gameStateTracker(std::make_unique<GameStateTracker>(_gameCore.get()))
@@ -61,7 +61,7 @@ BastardApplication::BastardApplication(const Wt::WEnvironment &env, const Neural
     showInitialTiles();
 }
 
-void BastardApplication::setupGameController(const NeuralNetwork::Network *network)
+void WebApplication::setupGameController(const NeuralNetwork::Network *network)
 {
     auto param = environment().getParameter(ControllerParameterName);
     if (param && *param == NeuralNetworkControllerValue && network)
@@ -69,21 +69,21 @@ void BastardApplication::setupGameController(const NeuralNetwork::Network *netwo
     else setupKeyboardGameController();
 }
 
-void BastardApplication::setupKeyboardGameController()
+void WebApplication::setupKeyboardGameController()
 {
     KeyboardGameController *controller = this->addChild(std::make_unique<KeyboardGameController>(_gameCore.get(), _gameStateTracker.get()));
     _gameController = controller;
     globalKeyWentDown().connect(controller, &KeyboardGameController::onKeyDown);
 }
 
-void BastardApplication::setupNeuralNetworkGameController(const NeuralNetwork::Network *network)
+void WebApplication::setupNeuralNetworkGameController(const NeuralNetwork::Network *network)
 {
     auto controller = this->addChild(std::make_unique<NeuralNetworkGameController>(_gameCore.get(), network));
     _gameController = controller;
     controller->start();
 }
 
-void BastardApplication::showInitialTiles() const
+void WebApplication::showInitialTiles() const
 {
     std::vector<TilePosition> positions;
     for (unsigned int i = 0; i < _gameCore->board().size() && positions.size() < 2; ++i)
@@ -98,7 +98,7 @@ void BastardApplication::showInitialTiles() const
     _gameWidget->boardWidget()->setInitialTiles(positions[0], positions[1]);
 }
 
-void BastardApplication::serializeGameHistory() const
+void WebApplication::serializeGameHistory() const
 {
     std::string fileName = appRoot();
     Wt::WDateTime dateTime = Wt::WDateTime::currentDateTime();
@@ -108,7 +108,7 @@ void BastardApplication::serializeGameHistory() const
     _gameStateTracker->reset();
 }
 
-void BastardApplication::scoreUpdated(unsigned int score)
+void WebApplication::scoreUpdated(unsigned int score)
 {
     _gameWidget->headerWidget()->setScore(score);
     if (_gameWidget->headerWidget()->bestScore() < score)
@@ -118,12 +118,12 @@ void BastardApplication::scoreUpdated(unsigned int score)
     }
 }
 
-void BastardApplication::setBestScoreCookie(unsigned int score)
+void WebApplication::setBestScoreCookie(unsigned int score)
 {
     setCookie(BEST_SCORE_COOKIE, std::to_string(score), 60 * 60 * 24 * 14);
 }
 
-unsigned int BastardApplication::getBestScoreCookie()
+unsigned int WebApplication::getBestScoreCookie()
 {
     const std::string *cookie = environment().getCookie(BEST_SCORE_COOKIE);
     unsigned int score = 0;

@@ -8,6 +8,7 @@
 #include "LearningSetsMaker.h"
 #include "NetworkCreator.h"
 #include "NetworkTeacher.h"
+#include "WebAppLauncher.h"
 
 namespace nn2048
 {
@@ -26,7 +27,8 @@ RunMode Launcher::parseRunMode(const std::string &mode)
     static std::map<std::string, RunMode> dictionary {
         { "convert", RunMode::MakeLearningSets },
         { "create", RunMode::CreateNetwork },
-        { "learn", RunMode::NetworkLearning }
+        { "learn", RunMode::NetworkLearning },
+        { "webapp", RunMode::WebApp }
     };
     return dictionary[mode];
 }
@@ -41,6 +43,8 @@ std::unique_ptr<Application> Launcher::applicationForRunMode(RunMode mode, int a
         return networkCreatorApplication(argc, argv);
     case RunMode::NetworkLearning:
         return networkTeacherApplication(argc, argv);
+    case RunMode::WebApp:
+        return webApplication(argc, argv);
     case RunMode::HelpMode:
     default:
         return helperApplication(argv[0]);
@@ -369,6 +373,156 @@ std::unique_ptr<Application> Launcher::networkTeacherApplication(int argc, char 
     }
 
     return std::make_unique<NetworkTeacher>(networkFileName, learningSetsFileName, maxEpochs, minError, learningRate, momentum);
+}
+
+std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
+{
+    unsigned short port = 4000;
+    std::string serverName;
+    std::string documentRoot;
+    std::string resourcesDirectory;
+    std::string appRootDirectory;
+    std::string neuralNetworkFileName;
+
+    for (int i = 2; i < argc; ++i)
+    {
+        // Port
+        if (!strcmp("-p", argv[i]))
+        {
+            if (port != 0)
+            {
+                std::cerr << "Port number already set" << std::endl;
+                return nullptr;
+            }
+            else if (argc <= i + 1)
+            {
+                std::cerr << "Port number argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            try
+            {
+                int parsed = std::stoi(argv[++i]);
+                if (parsed <= 0 || parsed >= 65536)
+                    throw std::invalid_argument("Port number has to be in range [1..65535]");
+                port = (unsigned short)parsed;
+            }
+            catch (std::invalid_argument &exception)
+            {
+                std::cerr << "Port number parsing error: " << exception.what() << std::endl;
+                return nullptr;
+            }
+        }
+        // Server name
+        else if (!strcmp("-s", argv[i]))
+        {
+            if (!serverName.empty())
+            {
+                std::cerr << "Server name cannot be set twice" << std::endl;
+                return nullptr;
+            }
+            else if (argc <= i + 1)
+            {
+                std::cerr << "Server name argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            serverName = argv[++i];
+        }
+        // Doc root
+        else if (!strcmp("-d", argv[i]))
+        {
+            if (!documentRoot.empty())
+            {
+                std::cerr << "Document root cannot be set twice" << std::endl;
+                return nullptr;
+            }
+            else if (argc <= i + 1)
+            {
+                std::cerr << "Document root argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            documentRoot = argv[++i];
+        }
+        // Resources directory
+        else if (!strcmp("-r", argv[i]))
+        {
+            if (!resourcesDirectory.empty())
+            {
+                std::cerr << "Resources directory cannot be set twice" << std::endl;
+                return nullptr;
+            }
+            else if (argc <= i + 1)
+            {
+                std::cerr << "Resources directory argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            resourcesDirectory = argv[++i];
+        }
+        // App root directory
+        else if (!strcmp("-a", argv[i]))
+        {
+            if (!appRootDirectory.empty())
+            {
+                std::cerr << "Application root directory cannot be set twice" << std::endl;
+                return nullptr;
+            }
+            else if (argc <= i + 1)
+            {
+                std::cerr << "Application root directory argument requires paramter" << std::endl;
+                return nullptr;
+            }
+            appRootDirectory = argv[++i];
+        }
+        // Neural network file name
+        else if (!strcmp("-n", argv[i]))
+        {
+            if (!neuralNetworkFileName.empty())
+            {
+                std::cerr << "Neural network file name cannot be set twice" << std::endl;
+                return nullptr;
+            }
+            else if (argc <= i + 1)
+            {
+                std::cerr << "Neural network file name argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            neuralNetworkFileName = argv[++i];
+        }
+        // Unknown argument
+        else
+        {
+            std::cerr << "Unknown argument: " << argv[i] << std::endl;
+            return nullptr;
+        }
+    }
+
+    if (serverName.empty())
+    {
+        std::cerr << "Server name not specified" << std::endl;
+        return nullptr;
+    }
+    else if (documentRoot.empty())
+    {
+        std::cerr << "Document root not specified" << std::endl;
+        return nullptr;
+    }
+    else if (resourcesDirectory.empty())
+    {
+        std::cerr << "Resources directory not specified" << std::endl;
+        return nullptr;
+    }
+    else if (appRootDirectory.empty())
+    {
+        std::cerr << "Application root directory not specified" << std::endl;
+    }
+
+    return std::make_unique<WebAppLauncher>(
+            argv[0],
+            port,
+            serverName,
+            documentRoot,
+            resourcesDirectory,
+            appRootDirectory,
+            neuralNetworkFileName);
 }
 
 std::vector<std::string> Launcher::splitString(const std::string &string, char delimiter)

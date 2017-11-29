@@ -25,6 +25,13 @@ void Helper::showHelp() const
     std::cout << "    -m momentum  - momentum factor (optional, 0.02 by default)" << std::endl;
     std::cout << "    Arguments -c and -e can be used in combination with each other. At least" << std::endl;
     std::cout << "    one of them has to be specified." << std::endl;
+    std::cout << "webapp mode - launches 2048 web application" << std::endl;
+    std::cout << "    -p port      - specify port to deploy app to (4000 by default)" << std::endl;
+    std::cout << "    -s name      - server name" << std::endl;
+    std::cout << "    -d docroot   - document root" << std::endl;
+    std::cout << "    -r dir       - resources directory" << std::endl;
+    std::cout << "    -a dir       - app root directory" << std::endl;
+    std::cout << "    -n file      - neural network file name (optional)" << std::endl;
 }
 
 }

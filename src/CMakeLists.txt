@@ -29,6 +29,7 @@ set(SOURCES
     web/ScoreWidget.cpp
     utils/TilePositionComparer.cpp
     web/WebApplication.cpp
+    WebAppLauncher.cpp
 )
             
 set(HEADERS
@@ -49,6 +50,7 @@ set(HEADERS
     web/ScoreWidget.h
     utils/TilePositionComparer.h
     web/WebApplication.h
+    WebAppLauncher.h
 )
             
 include_directories(${WT_INCLUDE_PATH})
@@ -58,6 +60,6 @@ target_link_libraries(nn2048
     Game2048Core
     NeuralNetwork
     ${WT_LIBRARY}
-    ${WT_HTTP_LIBRARY}
+    ${WTHTTP_LIBRARY}
     ${Boost_LIBRARIES})
 set_property(TARGET nn2048 PROPERTY CXX_STANDARD 14)

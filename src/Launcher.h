@@ -14,7 +14,8 @@ enum class RunMode
     HelpMode,
     MakeLearningSets,
     CreateNetwork,
-    NetworkLearning
+    NetworkLearning,
+    WebApp
 };
 
 class Launcher
@@ -29,6 +30,7 @@ protected:
     static std::unique_ptr<Application> setsMakerApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> networkCreatorApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> networkTeacherApplication(int argc, char *argv[]);
+    static std::unique_ptr<Application> webApplication(int argc, char *argv[]);
 
     static std::vector<std::string> splitString(const std::string &string, char delimiter);
 };
