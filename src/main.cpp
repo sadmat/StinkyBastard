@@ -1,7 +1,7 @@
 #include <csignal>
-#include "launcher.h"
+#include "Launcher.h"
 
-static Stinky::Application *app = nullptr;
+static nn2048::Application *app = nullptr;
 
 void onSigInt(int)
 {
@@ -12,7 +12,7 @@ void onSigInt(int)
 int main(int argc, char *argv[])
 {
     std::signal(SIGINT, &onSigInt);
-    auto application = Stinky::Launcher::application(argc, argv);
+    auto application = nn2048::Launcher::application(argc, argv);
     app = application.get();
     return application->run();
 }

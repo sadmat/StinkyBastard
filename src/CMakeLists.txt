@@ -13,41 +13,43 @@ find_package(Boost REQUIRED
 
 set(SOURCES
     main.cpp
-    bastardapplication.cpp
-    boardsignalconverter.cpp
-    gameboardwidget.cpp
-    gamecontroller.cpp
-    gameheaderwidget.cpp
-    gamewidget.cpp
-    helper.cpp
-    keyboardgamecontroller.cpp
-    launcher.cpp
-    learningsetsmaker.cpp
-    networkcreator.cpp
-    networkoutputconverter.cpp
-    networkteacher.cpp
-    neuralnetworkgamecontroller.cpp
-    scorewidget.cpp
-    tilepositioncomparer.cpp)
+    utils/BoardSignalConverter.cpp
+    web/GameBoardWidget.cpp
+    web/GameController.cpp
+    web/GameHeaderWidget.cpp
+    web/GameWidget.cpp
+    Helper.cpp
+    web/KeyboardGameController.cpp
+    Launcher.cpp
+    LearningSetsMaker.cpp
+    NetworkCreator.cpp
+    utils/NetworkOutputConverter.cpp
+    NetworkTeacher.cpp
+    web/NeuralNetworkGameController.cpp
+    web/ScoreWidget.cpp
+    utils/TilePositionComparer.cpp
+    web/WebApplication.cpp
+)
             
 set(HEADERS
-    application.h
-    bastardapplication.h
-    boardsignalconverter.h
-    gameboardwidget.h
-    gamecontroller.h
-    gameheaderwidget.h
-    gamewidget.h
-    helper.h
-    keyboardgamecontroller.h
-    launcher.h
-    learningsetsmaker.h
-    networkcreator.h
-    networkoutputconverter.h
-    networkteacher.h
-    neuralnetworkgamecontroller.h
-    scorewidget.h
-    tilepositioncomparer.h)
+    Application.h
+    utils/BoardSignalConverter.h
+    web/GameBoardWidget.h
+    web/GameController.h
+    web/GameHeaderWidget.h
+    web/GameWidget.h
+    Helper.h
+    web/KeyboardGameController.h
+    Launcher.h
+    LearningSetsMaker.h
+    NetworkCreator.h
+    utils/NetworkOutputConverter.h
+    NetworkTeacher.h
+    web/NeuralNetworkGameController.h
+    web/ScoreWidget.h
+    utils/TilePositionComparer.h
+    web/WebApplication.h
+)
             
 include_directories(${WT_INCLUDE_PATH})
 link_directories(${JSONCPP_LIBRARY_DIRS})
