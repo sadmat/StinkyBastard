@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <learningnetwork.h>
+#include <LearningNetwork.h>
 
 namespace nn2048
 {

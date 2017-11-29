@@ -2,7 +2,7 @@
 #define NEURALNETWORKGAMECONTROLLER_H
 
 #include "GameController.h"
-#include <network.h>
+#include <Network.h>
 
 namespace nn2048
 {

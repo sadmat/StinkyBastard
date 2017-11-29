@@ -5,8 +5,8 @@
 #include <string>
 #include <array>
 #include <map>
-#include <gamehistoryserializer.h>
-#include <learningsetserializer.h>
+#include <GameHistorySerializer.h>
+#include <LearningSetSerializer.h>
 
 namespace nn2048
 {

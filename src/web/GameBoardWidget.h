@@ -2,8 +2,8 @@
 #define GAMEBOARDWIDGET_H
 
 #include <Wt/WPaintedWidget.h>
-#include <tile.h>
-#include <gamecore.h>
+#include <Tile.h>
+#include <GameCore.h>
 #include <map>
 #include "../utils/TilePositionComparer.h"
 

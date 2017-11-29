@@ -1,6 +1,6 @@
 #include "WebApplication.h"
-#include <gamecore.h>
-#include <gamehistoryserializer.h>
+#include <GameCore.h>
+#include <GameHistorySerializer.h>
 #include <Wt/WDateTime.h>
 #include <Wt/WEnvironment.h>
 #include "GameWidget.h"

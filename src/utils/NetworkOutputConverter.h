@@ -2,7 +2,7 @@
 #define NETWORKOUTPUTCONVERTER_H
 
 #include <array>
-#include <gamecore.h>
+#include <GameCore.h>
 
 namespace nn2048
 {

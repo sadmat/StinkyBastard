@@ -1,7 +1,7 @@
 #ifndef TILEPOSITIONCOMPARER_H
 #define TILEPOSITIONCOMPARER_H
 
-#include <tile.h>
+#include <Tile.h>
 
 namespace nn2048
 {

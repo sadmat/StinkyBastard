@@ -3,7 +3,7 @@
 
 #include "GameController.h"
 #include <map>
-#include <gamestatetracker.h>
+#include <GameStateTracker.h>
 
 namespace nn2048
 {

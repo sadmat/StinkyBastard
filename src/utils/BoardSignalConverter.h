@@ -1,7 +1,7 @@
 #ifndef BOARDSIGNALCONVERTER_H
 #define BOARDSIGNALCONVERTER_H
 
-#include <gamecore.h>
+#include <GameCore.h>
 
 namespace nn2048
 {

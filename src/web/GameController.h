@@ -2,7 +2,7 @@
 #define GAMECONTROLLER_H
 
 #include <Wt/WObject.h>
-#include <gamecore.h>
+#include <GameCore.h>
 
 namespace nn2048
 {

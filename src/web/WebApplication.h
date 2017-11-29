@@ -2,9 +2,9 @@
 #define BASTARDAPPLICATION_H
 
 #include <Wt/WApplication.h>
-#include <gamecore.h>
-#include <gamestatetracker.h>
-#include <network.h>
+#include <GameCore.h>
+#include <GameStateTracker.h>
+#include <Network.h>
 
 namespace nn2048
 {

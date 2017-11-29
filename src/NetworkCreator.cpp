@@ -1,5 +1,5 @@
 #include "NetworkCreator.h"
-#include <networkserializer.h>
+#include <NetworkSerializer.h>
 #include <fstream>
 #include <iostream>
 
