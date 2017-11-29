@@ -2,9 +2,9 @@
 #define BASTARDAPPLICATION_H
 
 #include <Wt/WApplication.h>
-#include <TwoOhFourEightCore/gamecore.h>
-#include <TwoOhFourEightCore/gamestatetracker.h>
-#include <NeuralNetwork/network.h>
+#include <gamecore.h>
+#include <gamestatetracker.h>
+#include <network.h>
 
 namespace Bastard
 {

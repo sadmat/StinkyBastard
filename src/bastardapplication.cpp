@@ -1,6 +1,6 @@
 #include "bastardapplication.h"
-#include <TwoOhFourEightCore/gamecore.h>
-#include <TwoOhFourEightCore/gamehistoryserializer.h>
+#include <gamecore.h>
+#include <gamehistoryserializer.h>
 #include <Wt/WDateTime.h>
 #include <Wt/WEnvironment.h>
 #include "gamewidget.h"

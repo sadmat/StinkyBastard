@@ -2,7 +2,7 @@
 #define GAMECONTROLLER_H
 
 #include <Wt/WObject.h>
-#include <TwoOhFourEightCore/gamecore.h>
+#include <gamecore.h>
 
 namespace Bastard
 {

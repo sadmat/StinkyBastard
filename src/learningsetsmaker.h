@@ -5,8 +5,8 @@
 #include <string>
 #include <array>
 #include <map>
-#include <TwoOhFourEightCore/gamehistoryserializer.h>
-#include <NeuralNetwork/learningsetserializer.h>
+#include <gamehistoryserializer.h>
+#include <learningsetserializer.h>
 
 namespace Stinky
 {

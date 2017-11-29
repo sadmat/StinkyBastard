@@ -1,6 +1,6 @@
 #include "networkteacher.h"
-#include <NeuralNetwork/networkserializer.h>
-#include <NeuralNetwork/learningsetserializer.h>
+#include <networkserializer.h>
+#include <learningsetserializer.h>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>

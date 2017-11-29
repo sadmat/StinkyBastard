@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <NeuralNetwork/learningnetwork.h>
+#include <learningnetwork.h>
 
 namespace Stinky
 {

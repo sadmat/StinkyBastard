@@ -2,7 +2,7 @@
 #define NETWORKOUTPUTCONVERTER_H
 
 #include <array>
-#include <TwoOhFourEightCore/gamecore.h>
+#include <gamecore.h>
 
 namespace Bastard
 {

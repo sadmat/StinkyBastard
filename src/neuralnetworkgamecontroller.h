@@ -2,7 +2,7 @@
 #define NEURALNETWORKGAMECONTROLLER_H
 
 #include "gamecontroller.h"
-#include <NeuralNetwork/network.h>
+#include <network.h>
 
 namespace Bastard
 {

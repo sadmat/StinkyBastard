@@ -3,7 +3,7 @@
 
 #include "gamecontroller.h"
 #include <map>
-#include <TwoOhFourEightCore/gamestatetracker.h>
+#include <gamestatetracker.h>
 
 namespace Bastard
 {

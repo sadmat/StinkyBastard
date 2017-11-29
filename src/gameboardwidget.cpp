@@ -1,6 +1,6 @@
 #include "gameboardwidget.h"
 #include <Wt/WPainter.h>
-#include <TwoOhFourEightCore/gamecore.h>
+#include <gamecore.h>
 
 #define BOARD_SIZE 500
 #define TILE_SIZE 107

@@ -1,7 +1,7 @@
 #ifndef TILEPOSITIONCOMPARER_H
 #define TILEPOSITIONCOMPARER_H
 
-#include <TwoOhFourEightCore/tile.h>
+#include <tile.h>
 
 namespace Bastard
 {

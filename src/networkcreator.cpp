@@ -1,5 +1,5 @@
 #include "networkcreator.h"
-#include <NeuralNetwork/networkserializer.h>
+#include <networkserializer.h>
 #include <fstream>
 #include <iostream>
 

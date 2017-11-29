@@ -1,7 +1,7 @@
 #ifndef BOARDSIGNALCONVERTER_H
 #define BOARDSIGNALCONVERTER_H
 
-#include <TwoOhFourEightCore/gamecore.h>
+#include <gamecore.h>
 
 namespace Bastard
 {
