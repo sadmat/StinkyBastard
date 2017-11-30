@@ -10,13 +10,16 @@ namespace nn2048
 class NeuralNetworkGameController : public GameController
 {
 public:
-    NeuralNetworkGameController(GameCore *game, const NeuralNetwork::Network *network);
+    NeuralNetworkGameController(GameCore *game,
+                                const NeuralNetwork::Network *network,
+                                bool autoRestart);
 
     void start();
     void move();
 
 private:
     const NeuralNetwork::Network *_network;
+    bool _autoRestart;
 };
 
 

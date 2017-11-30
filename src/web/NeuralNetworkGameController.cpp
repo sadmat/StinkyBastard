@@ -10,9 +10,12 @@
 namespace nn2048
 {
 
-NeuralNetworkGameController::NeuralNetworkGameController(GameCore *gameCore, const NeuralNetwork::Network *network):
+NeuralNetworkGameController::NeuralNetworkGameController(GameCore *gameCore,
+                                                         const NeuralNetwork::Network *network,
+                                                         bool autoRestart):
     GameController(gameCore),
-    _network(network)
+    _network(network),
+    _autoRestart(autoRestart)
 {}
 
 void NeuralNetworkGameController::start()
@@ -33,6 +36,14 @@ void NeuralNetworkGameController::move()
     };
 
     std::clog << "NeuralNetworkGameController::move()" << std::endl;
+
+    if (_gameCore->isGameOver())
+    {
+        std::clog << "Game over. Restarting." << std::endl;
+        _gameCore->reset();
+        start();
+        return;
+    }
 
     auto boardSignal = BoardSignalConverter::boardToSignal(_gameCore->board());
     auto response = _network->responses(boardSignal);

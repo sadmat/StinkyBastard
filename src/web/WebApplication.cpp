@@ -17,6 +17,8 @@
 static const std::string ControllerParameterName = "controller";
 static const std::string KeyboardControllerValue = "keyboard";
 static const std::string NeuralNetworkControllerValue = "neural";
+static const std::string RestartParameterName = "restart";
+static const std::string AutoRestartValue = "auto";
 
 using namespace Game2048Core;
 
@@ -78,7 +80,11 @@ void WebApplication::setupKeyboardGameController()
 
 void WebApplication::setupNeuralNetworkGameController(const NeuralNetwork::Network *network)
 {
-    auto controller = this->addChild(std::make_unique<NeuralNetworkGameController>(_gameCore.get(), network));
+    bool autoRestart = false;
+    auto param = environment().getParameter(RestartParameterName);
+    if (param && *param == AutoRestartValue)
+        autoRestart = true;
+    auto controller = this->addChild(std::make_unique<NeuralNetworkGameController>(_gameCore.get(), network, autoRestart));
     _gameController = controller;
     controller->start();
 }
