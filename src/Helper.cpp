@@ -16,7 +16,7 @@ void Helper::showHelp() const
     std::cout << "    -s structure - network structure (eg. 2,3,4 - 2 inputs, 3 hidden" << std::endl;
     std::cout << "                   neurons, 4 outputs)" << std::endl;
     std::cout << "    -o output    - output file name" << std::endl;
-    std::cout << "    -d distrib   - weight distribution amplitude (optional," << DefaultWeightDistribution << " by default)" << std::endl;
+    std::cout << "    -d distrib   - weight distribution amplitude (optional, " << DefaultWeightDistribution << " by default)" << std::endl;
     std::cout << "learn mode - performs backpropagation algorythm" << std::endl;
     std::cout << "    -n file      - neural network file name" << std::endl;
     std::cout << "    -l file      - learning sets file name" << std::endl;
