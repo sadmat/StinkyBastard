@@ -35,6 +35,7 @@ set(SOURCES
 set(HEADERS
     Application.h
     utils/BoardSignalConverter.h
+    utils/Defaults.h
     web/GameBoardWidget.h
     web/GameController.h
     web/GameHeaderWidget.h

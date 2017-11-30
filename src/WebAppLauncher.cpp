@@ -73,10 +73,11 @@ bool WebAppLauncher::loadNeuralNetwork()
 
 void WebAppLauncher::setupServer()
 {
+    std::string portString = std::to_string(_port);
     const char *argv[] {
         _execName.c_str(),
         "--http-address", "0.0.0.0",
-        "--http-port", std::to_string(_port).c_str(),
+        "--http-port", portString.c_str(),
         "--servername", _serverName.c_str(),
         "--docroot", _documentRoot.c_str(),
         "--resources-dir", _resourcesDirectory.c_str(),

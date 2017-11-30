@@ -9,6 +9,7 @@
 #include "NetworkCreator.h"
 #include "NetworkTeacher.h"
 #include "WebAppLauncher.h"
+#include "utils/Defaults.h"
 
 namespace nn2048
 {
@@ -138,7 +139,7 @@ std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char 
 {
     std::string structureString;
     std::string fileName;
-    double distributionAmplitude = 0.2;
+    double distributionAmplitude = DefaultWeightDistribution;
 
     for (unsigned i = 2; i < argc; ++i)
     {
@@ -233,8 +234,8 @@ std::unique_ptr<Application> Launcher::networkTeacherApplication(int argc, char 
     std::string learningSetsFileName;
     unsigned maxEpochs = 0;
     double minError = 0.0;
-    double learningRate = 0.08;
-    double momentum = 0.02;
+    double learningRate = DefaultLearningRate;
+    double momentum = DefaultMomentumFactor;
 
     for (int i = 2; i < argc; ++i)
     {
@@ -377,7 +378,8 @@ std::unique_ptr<Application> Launcher::networkTeacherApplication(int argc, char 
 
 std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
 {
-    unsigned short port = 4000;
+    unsigned short port = DefaultServerPort;
+    std::string portString;
     std::string serverName;
     std::string documentRoot;
     std::string resourcesDirectory;
@@ -389,9 +391,9 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
         // Port
         if (!strcmp("-p", argv[i]))
         {
-            if (port != 0)
+            if (!portString.empty())
             {
-                std::cerr << "Port number already set" << std::endl;
+                std::cerr << "Port number cannot be specified twice" << std::endl;
                 return nullptr;
             }
             else if (argc <= i + 1)
@@ -399,18 +401,7 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
                 std::cerr << "Port number argument requires parameter" << std::endl;
                 return nullptr;
             }
-            try
-            {
-                int parsed = std::stoi(argv[++i]);
-                if (parsed <= 0 || parsed >= 65536)
-                    throw std::invalid_argument("Port number has to be in range [1..65535]");
-                port = (unsigned short)parsed;
-            }
-            catch (std::invalid_argument &exception)
-            {
-                std::cerr << "Port number parsing error: " << exception.what() << std::endl;
-                return nullptr;
-            }
+            portString = argv[++i];
         }
         // Server name
         else if (!strcmp("-s", argv[i]))
@@ -491,6 +482,22 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
         else
         {
             std::cerr << "Unknown argument: " << argv[i] << std::endl;
+            return nullptr;
+        }
+    }
+
+    if (!portString.empty())
+    {
+        try
+        {
+            int parsed = std::stoi(portString);
+            if (parsed <= 0 || parsed >= 65536)
+                throw std::invalid_argument("Port number has to be in range [1..65535]");
+            port = (unsigned short)parsed;
+        }
+        catch (std::invalid_argument &exception)
+        {
+            std::cerr << "Port number parsing error: " << exception.what() << std::endl;
             return nullptr;
         }
     }
