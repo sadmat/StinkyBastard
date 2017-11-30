@@ -25,8 +25,9 @@ using namespace Game2048Core;
 namespace nn2048
 {
 
-WebApplication::WebApplication(const Wt::WEnvironment &env, const NeuralNetwork::Network *network):
+WebApplication::WebApplication(const Wt::WEnvironment &env, const NeuralNetwork::Network *network, unsigned long highscoreThreshold):
     Wt::WApplication(env),
+    _highscoreThreshold(highscoreThreshold),
     _gameCore(std::make_unique<GameCore>(GAME_BOARD_SIZE)),
     _gameStateTracker(std::make_unique<GameStateTracker>(_gameCore.get()))
 {
@@ -106,6 +107,8 @@ void WebApplication::showInitialTiles() const
 
 void WebApplication::serializeGameHistory() const
 {
+    if (_gameCore->state().score < _highscoreThreshold)
+        return;
     std::string fileName = appRoot();
     Wt::WDateTime dateTime = Wt::WDateTime::currentDateTime();
     fileName += dateTime.toString("yyyy-MM-dd HH.mm.ss.zzz", true).toUTF8();

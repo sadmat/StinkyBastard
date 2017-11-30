@@ -5,6 +5,7 @@
 #include <GameCore.h>
 #include <GameStateTracker.h>
 #include <Network.h>
+#include "../utils/Defaults.h"
 
 namespace nn2048
 {
@@ -15,7 +16,9 @@ class GameController;
 class WebApplication : public Wt::WApplication
 {
 public:
-    WebApplication(const Wt::WEnvironment &env, const NeuralNetwork::Network *network = nullptr);
+    WebApplication(const Wt::WEnvironment &env,
+                   const NeuralNetwork::Network *network = nullptr,
+                   unsigned long highscoreThreshold = DefaultHighscoreToRecordThreshold);
 
 protected:
     void setupGameController(const NeuralNetwork::Network *network);
@@ -30,6 +33,7 @@ protected:
     unsigned int getBestScoreCookie();
 
 private:
+    unsigned long _highscoreThreshold;
     std::unique_ptr<Game2048Core::GameCore> _gameCore;
     std::unique_ptr<Game2048Core::GameStateTracker> _gameStateTracker;
     GameWidget *_gameWidget;

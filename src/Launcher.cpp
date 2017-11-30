@@ -385,6 +385,8 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
     std::string resourcesDirectory;
     std::string appRootDirectory;
     std::string neuralNetworkFileName;
+    unsigned long highscoreThreshold = DefaultHighscoreToRecordThreshold;
+    std::string highscoreThresholdString;
 
     for (int i = 2; i < argc; ++i)
     {
@@ -478,6 +480,21 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
             }
             neuralNetworkFileName = argv[++i];
         }
+        // Highscore threshold
+        else if (!strcmp("-t", argv[i]))
+        {
+            if (!highscoreThresholdString.empty())
+            {
+                std::cerr << "Highscore threshold cannot be set twice" << std::endl;
+                return nullptr;
+            }
+            else if (argc <= i + 1)
+            {
+                std::cerr << "Highscore threshold argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            highscoreThresholdString = argv[++i];
+        }
         // Unknown argument
         else
         {
@@ -498,6 +515,19 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
         catch (std::invalid_argument &exception)
         {
             std::cerr << "Port number parsing error: " << exception.what() << std::endl;
+            return nullptr;
+        }
+    }
+
+    if (!highscoreThresholdString.empty())
+    {
+        try
+        {
+            highscoreThreshold = std::stoul(highscoreThresholdString);
+        }
+        catch (std::invalid_argument &exception)
+        {
+            std::cerr << "Error parsing highscore threshold: " << exception.what();
             return nullptr;
         }
     }
@@ -529,7 +559,8 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
             documentRoot,
             resourcesDirectory,
             appRootDirectory,
-            neuralNetworkFileName);
+            neuralNetworkFileName,
+            highscoreThreshold);
 }
 
 std::vector<std::string> Launcher::splitString(const std::string &string, char delimiter)

@@ -17,7 +17,8 @@ public:
                    const std::string &documentRoot,
                    const std::string &resourcesDirectory,
                    const std::string &appRootDirectory,
-                   const std::string &neuralNetworkFileName);
+                   const std::string &neuralNetworkFileName,
+                   unsigned long highscoreThreshold);
 
     int run();
 
@@ -33,6 +34,7 @@ private:
     std::string _resourcesDirectory;
     std::string _appRootDirectory;
     std::string _neuralNetworkFileName;
+    unsigned long _highscoreThreshold;
 
     std::unique_ptr<Wt::WServer> _server;
     std::unique_ptr<NeuralNetwork::Network> _neuralNetwork;

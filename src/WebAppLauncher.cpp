@@ -13,14 +13,16 @@ WebAppLauncher::WebAppLauncher(const std::string &execName,
                                const std::string &documentRoot,
                                const std::string &resourcesDirectory,
                                const std::string &appRootDirectory,
-                               const std::string &neuralNetworkFileName):
+                               const std::string &neuralNetworkFileName,
+                               unsigned long highscoreThreshold):
     _execName(execName),
     _port(port),
     _serverName(serverName),
     _documentRoot(documentRoot),
     _resourcesDirectory(resourcesDirectory),
     _appRootDirectory(appRootDirectory),
-    _neuralNetworkFileName(neuralNetworkFileName)
+    _neuralNetworkFileName(neuralNetworkFileName),
+    _highscoreThreshold(highscoreThreshold)
 {}
 
 int WebAppLauncher::run()

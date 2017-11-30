@@ -28,11 +28,12 @@ void Helper::showHelp() const
     std::cout << "    one of them has to be specified." << std::endl;
     std::cout << "webapp mode - launches 2048 web application" << std::endl;
     std::cout << "    -p port      - specify port to deploy app to (" << DefaultServerPort << " by default)" << std::endl;
-    std::cout << "    -s name      - server name" << std::endl;
-    std::cout << "    -d docroot   - document root" << std::endl;
-    std::cout << "    -r dir       - resources directory" << std::endl;
-    std::cout << "    -a dir       - app root directory" << std::endl;
-    std::cout << "    -n file      - neural network file name (optional)" << std::endl;
+    std::cout << "    -s servName  - server name" << std::endl;
+    std::cout << "    -d docRoot   - document root" << std::endl;
+    std::cout << "    -r resDir    - resources directory" << std::endl;
+    std::cout << "    -a appDir    - app root directory" << std::endl;
+    std::cout << "    -n netFile   - neural network file name (optional)" << std::endl;
+    std::cout << "    -t score     - threshold above which games are recorded (optional, " << DefaultHighscoreToRecordThreshold << " by default)" << std::endl;
 }
 
 }
