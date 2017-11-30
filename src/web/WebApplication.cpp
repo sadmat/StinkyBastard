@@ -108,7 +108,10 @@ void WebApplication::showInitialTiles() const
 void WebApplication::serializeGameHistory() const
 {
     if (_gameCore->state().score < _highscoreThreshold)
+    {
+        _gameStateTracker->reset();
         return;
+    }
     std::string fileName = appRoot();
     Wt::WDateTime dateTime = Wt::WDateTime::currentDateTime();
     fileName += dateTime.toString("yyyy-MM-dd HH.mm.ss.zzz", true).toUTF8();
