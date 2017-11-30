@@ -11,8 +11,6 @@ find_package(Boost REQUIRED
     filesystem
     system)
 
-find_package(ZLIB REQUIRED)
-
 set(SOURCES
     main.cpp
     utils/BoardSignalConverter.cpp
@@ -64,5 +62,5 @@ target_link_libraries(nn2048
     ${WT_LIBRARY}
     ${WTHTTP_LIBRARY}
     ${Boost_LIBRARIES}
-    ${ZLIB_LIBRARIES})
+)
 set_property(TARGET nn2048 PROPERTY CXX_STANDARD 14)
