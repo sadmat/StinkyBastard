@@ -89,7 +89,7 @@ void WebAppLauncher::setupServer()
     _server = std::make_unique<Wt::WServer>(argc, const_cast<char **>(argv));
     _server->addEntryPoint(Wt::EntryPointType::Application,
                            [this] (const Wt::WEnvironment &environment) {
-        return std::make_unique<WebApplication>(environment, _neuralNetwork.get());
+        return std::make_unique<WebApplication>(environment, _neuralNetwork.get(), _highscoreThreshold);
     });
 }
 
