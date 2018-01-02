@@ -39,9 +39,13 @@ void NeuralNetworkGameController::move()
 
     if (_gameCore->isGameOver())
     {
-        std::clog << "Game over. Restarting." << std::endl;
-        _gameCore->reset();
-        start();
+        std::clog << "Game over." << std::endl;
+        if (_autoRestart)
+        {
+            std::clog <<  "Restarting." << std::endl;
+            _gameCore->reset();
+            start();
+        }
         return;
     }
 
