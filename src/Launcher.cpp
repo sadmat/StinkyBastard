@@ -8,6 +8,7 @@
 #include "LearningSetsMaker.h"
 #include "NetworkCreator.h"
 #include "NetworkTeacher.h"
+#include "QLearningTeacher.h"
 #include "WebAppLauncher.h"
 #include "utils/Defaults.h"
 
@@ -29,6 +30,7 @@ RunMode Launcher::parseRunMode(const std::string &mode)
         { "convert", RunMode::MakeLearningSets },
         { "create", RunMode::CreateNetwork },
         { "learn", RunMode::NetworkLearning },
+        { "qlearn", RunMode::QNetworkLearning },
         { "webapp", RunMode::WebApp }
     };
     return dictionary[mode];
@@ -44,6 +46,8 @@ std::unique_ptr<Application> Launcher::applicationForRunMode(RunMode mode, int a
         return networkCreatorApplication(argc, argv);
     case RunMode::NetworkLearning:
         return networkTeacherApplication(argc, argv);
+    case RunMode::QNetworkLearning:
+        return qNetworkTeacherApplication(argc, argv);
     case RunMode::WebApp:
         return webApplication(argc, argv);
     case RunMode::HelpMode:
@@ -374,6 +378,128 @@ std::unique_ptr<Application> Launcher::networkTeacherApplication(int argc, char 
     }
 
     return std::make_unique<NetworkTeacher>(networkFileName, learningSetsFileName, maxEpochs, minError, learningRate, momentum);
+}
+
+std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char *argv[])
+{
+    std::string networkFileName;
+    unsigned maxEpochs = 0;
+    double gamma = DefaultGammaFactor;
+    double learningRate = DefaultLearningRate;
+    double momentum = DefaultMomentumFactor;
+
+    for (int i = 2; i < argc; ++i)
+    {
+        // Neuron file name
+        if (strcmp("-n", argv[i]) == 0)
+        {
+            if (!networkFileName.empty())
+            {
+                std::cerr << "Network file name already set" << std::endl;
+                return nullptr;
+            }
+            if (argc <= i + 1)
+            {
+                std::cerr << "Network file name argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            networkFileName = argv[++i];
+        }
+        // Epochs
+        else if (strcmp("-e", argv[i]) == 0)
+        {
+            if (maxEpochs)
+            {
+                std::cerr << "Epochs limit already set" << std::endl;
+                return nullptr;
+            }
+            if (argc < i + 1)
+            {
+                std::cerr << "Epochs limit argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            try
+            {
+                maxEpochs = std::stoi(argv[++i]);
+            }
+            catch (std::invalid_argument &exception)
+            {
+                std::cerr << "Invalid epochs limit value: " << argv[i] << std::endl;
+                return nullptr;
+            }
+        }
+        // Gamma
+        else if (strcmp("-g", argv[i]) == 0)
+        {
+            if (argc <= i + 1)
+            {
+                std::cerr << "Gamma factor argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            try
+            {
+                gamma = std::stod(argv[++i]);
+            }
+            catch (std::runtime_error &exception)
+            {
+                std::cerr << "Invalid gamma factor value: " << argv[i] << std::endl;
+            }
+        }
+        // Learning rate
+        else if (strcmp("-r", argv[i]) == 0)
+        {
+            if (argc <= i + 1)
+            {
+                std::cerr << "Learning rate argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            try
+            {
+                learningRate = std::stod(argv[++i]);
+            }
+            catch (std::runtime_error &exception)
+            {
+                std::cerr << "Invalid learning rate value: " << argv[i] << std::endl;
+                return nullptr;
+            }
+        }
+        // Momentum
+        else if (strcmp("-m", argv[i]) == 0)
+        {
+            if (argc <= i + 1)
+            {
+                std::cerr << "Momentum argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            try
+            {
+                momentum = std::stod(argv[++i]);
+            }
+            catch (std::runtime_error &exception)
+            {
+                std::cerr << "Momentum argument requires parameter" << std::endl;
+                return nullptr;
+            }
+        }
+        else
+        {
+            std::cerr << "Unknown argument: " << argv[i] << std::endl;
+            return nullptr;
+        }
+    }
+
+    if (networkFileName.empty())
+    {
+        std::cerr << "Network file name not specified" << std::endl;
+        return nullptr;
+    }
+    if (maxEpochs == 0)
+    {
+        std::cerr << "Epochs limit not set" << std::endl;
+        return nullptr;
+    }
+
+    return std::make_unique<QLearningTeacher>(networkFileName, maxEpochs, gamma, learningRate, momentum);
 }
 
 std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])

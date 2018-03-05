@@ -15,6 +15,7 @@ enum class RunMode
     MakeLearningSets,
     CreateNetwork,
     NetworkLearning,
+    QNetworkLearning,
     WebApp
 };
 
@@ -30,6 +31,7 @@ protected:
     static std::unique_ptr<Application> setsMakerApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> networkCreatorApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> networkTeacherApplication(int argc, char *argv[]);
+    static std::unique_ptr<Application> qNetworkTeacherApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> webApplication(int argc, char *argv[]);
 
     static std::vector<std::string> splitString(const std::string &string, char delimiter);
