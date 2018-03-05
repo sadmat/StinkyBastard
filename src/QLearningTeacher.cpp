@@ -76,14 +76,20 @@ void QLearningTeacher::performLearning() const
 {
     try
     {
+        std::cout << "Learning starts..." << std::endl;
         unsigned agentStepCount = 0;
+        unsigned illegalMoveCount = 0;
         for (int i = 0; i < _maxEpochs && !_sigIntCaught; ++i)
         {
             if (_game->isGameOver())
             {
-                std::cout << "[epoch: " << i + 1 << "] Game over with agent steps: " << agentStepCount << ", score: " << _game->score() << std::endl;
+                std::cout << "[epoch: " << i + 1
+                          << "] Game over with agent steps: " << agentStepCount
+                          << ", illegal movements: " << illegalMoveCount
+                          << ", score: " << _game->score() << std::endl;
                 _game->reset();
                 agentStepCount = 0;
+                illegalMoveCount = 0;
             }
 
             auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
@@ -99,6 +105,9 @@ void QLearningTeacher::performLearning() const
                                        _learningRate,
                                        _momentum,
                                        _gamma);
+            if (moveFailed)
+                ++illegalMoveCount;
+            ++agentStepCount;
         }
     }
     catch (std::invalid_argument &exception)
