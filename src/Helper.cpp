@@ -31,7 +31,8 @@ void Helper::showHelp() const
 
     std::cout << "qlearn mode - performs Q Learning algorythm" << std::endl;
     std::cout << "    -n file      - neural network file name" << std::endl;
-    std::cout << "    -c epochs    - limit learning by maximum number of epochs" << std::endl;
+    std::cout << "    -e epochs    - limit learning by maximum number of epochs" << std::endl;
+    std::cout << "    -s score     - limit learning by target score" << std::endl;
     std::cout << "    -g gamma     - gamma factor (optional, " << DefaultGammaFactor << " by default)" << std::endl;
     std::cout << "    -r rate      - learning rate (optional, " << DefaultLearningRate << " by default)" << std::endl;
     std::cout << "    -m momentum  - momentum factor (optional, " << DefaultMomentumFactor << " by default)" << std::endl << std::endl;

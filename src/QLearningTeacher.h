@@ -19,10 +19,11 @@ class QLearningTeacher: public Application
 {
 public:
     QLearningTeacher(const std::string &networkFileName,
-                     unsigned maxEpochs,
-                     double gamma,
-                     double learningRate,
-                     double momentum);
+                         unsigned maxEpochs,
+                         unsigned targetScore,
+                         double gamma,
+                         double learningRate,
+                         double momentum);
 
     int run();
     void onSigInt();
@@ -32,10 +33,12 @@ protected:
     void performLearning() const;
     void serializeNetwork() const;
     double computeReward(bool moveFailed, bool scoreIncreased) const;
+    std::function<bool()> learningCondition(const unsigned &epoch, const unsigned &score) const;
 
 private:
     std::string _networkFileName;
     unsigned _maxEpochs;
+    unsigned _targetScore;
     double _gamma;
     double _learningRate;
     double _momentum;

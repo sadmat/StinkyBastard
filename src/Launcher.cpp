@@ -384,6 +384,7 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
 {
     std::string networkFileName;
     unsigned maxEpochs = 0;
+    unsigned targetScore = 0;
     double gamma = DefaultGammaFactor;
     double learningRate = DefaultLearningRate;
     double momentum = DefaultMomentumFactor;
@@ -425,6 +426,28 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
             catch (std::invalid_argument &exception)
             {
                 std::cerr << "Invalid epochs limit value: " << argv[i] << std::endl;
+                return nullptr;
+            }
+        }
+        else if (strcmp("-s", argv[i]) == 0)
+        {
+            if (targetScore)
+            {
+                std::cerr << "Target score already set" << std::endl;
+                return nullptr;
+            }
+            if (argc < i + 1)
+            {
+                std::cerr << "Target score argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            try
+            {
+                targetScore = std::stoi(argv[++i]);
+            }
+            catch (std::invalid_argument &exception)
+            {
+                std::cerr << "Invalid target score value: " << argv[i] << std::endl;
                 return nullptr;
             }
         }
@@ -493,13 +516,13 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
         std::cerr << "Network file name not specified" << std::endl;
         return nullptr;
     }
-    if (maxEpochs == 0)
+    if (maxEpochs == 0 && targetScore == 0)
     {
-        std::cerr << "Epochs limit not set" << std::endl;
+        std::cerr << "Neither epoch limit nor target score values are set." << std::endl;
         return nullptr;
     }
 
-    return std::make_unique<QLearningTeacher>(networkFileName, maxEpochs, gamma, learningRate, momentum);
+    return std::make_unique<QLearningTeacher>(networkFileName, maxEpochs, targetScore, gamma, learningRate, momentum);
 }
 
 std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])

@@ -17,11 +17,14 @@ const unsigned gameBoardSideLength = 4;
 
 QLearningTeacher::QLearningTeacher(const std::string &networkFileName,
                                    unsigned maxEpochs,
+                                   unsigned targetScore,
                                    double gamma,
                                    double learningRate,
-                                   double momentum):
+                                   double momentum)
+    :
 _networkFileName(networkFileName),
 _maxEpochs(maxEpochs),
+_targetScore(targetScore),
 _gamma(gamma),
 _learningRate(learningRate),
 _momentum(momentum),
@@ -77,13 +80,15 @@ void QLearningTeacher::performLearning() const
     try
     {
         std::cout << "Learning starts..." << std::endl;
+        unsigned epoch = 0;
         unsigned agentStepCount = 0;
         unsigned illegalMoveCount = 0;
-        for (int i = 0; i < _maxEpochs && !_sigIntCaught; ++i)
+        auto condition = learningCondition(epoch, _game->state().score);
+        for (; condition() && !_sigIntCaught; ++epoch)
         {
             if (_game->isGameOver())
             {
-                std::cout << "[epoch: " << i + 1
+                std::cout << "[epoch: " << epoch + 1
                           << "] Game over with agent steps: " << agentStepCount
                           << ", illegal movements: " << illegalMoveCount
                           << ", score: " << _game->score() << std::endl;
@@ -153,6 +158,32 @@ double QLearningTeacher::computeReward(bool moveFailed, bool scoreIncreased) con
         return 1.0; // TODO: should reward depend on score?
     else
         return 0.2; // Reward for survival.
+}
+
+std::function<bool()> QLearningTeacher::learningCondition(const unsigned &epoch, const unsigned &score) const
+{
+    if (_maxEpochs > 0 && _targetScore > 0)
+    {
+        auto c = [&epoch, &score, this] () -> bool {
+            return epoch < this->_maxEpochs && score < this->_targetScore;
+        };
+        return std::bind(c);
+    }
+    else if (_maxEpochs > 0)
+    {
+        auto c = [&epoch, this] () -> bool {
+            return epoch < this->_maxEpochs;
+        };
+        return std::bind(c);
+    }
+    else if (_targetScore > 0)
+    {
+        auto c= [&score, this] () -> bool {
+            return score < _targetScore;
+        };
+        return std::bind(c);
+    }
+    return std::bind([] () -> bool { return false; });
 }
 
 }
