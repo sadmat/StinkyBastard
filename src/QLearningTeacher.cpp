@@ -88,8 +88,9 @@ void QLearningTeacher::performLearning() const
 
             auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
             auto qValues = NetworkOutputConverter::outputToMoves(_network->responses(currentStateSignal));
+            unsigned prevScore = _game->score();
             bool moveFailed = !_game->tryMove(qValues.front().first);
-            double reward = computeReward(moveFailed);
+            double reward = computeReward(moveFailed, prevScore < _game->score());
             auto newStateSignal = BoardSignalConverter::boardToSignal(_game->board());
             _network->performQLearning((unsigned)qValues.front().first,
                                        reward,
@@ -133,9 +134,16 @@ void QLearningTeacher::serializeNetwork() const
     }
 }
 
-double QLearningTeacher::computeReward(bool moveFailed) const
+double QLearningTeacher::computeReward(bool moveFailed, bool scoreIncreased) const
 {
-    return 0;
+    if (moveFailed)
+        return -0.5;
+    else if (_game->isGameOver())
+        return -1.0;
+    else if (scoreIncreased)
+        return 1.0; // TODO: should reward depend on score?
+    else
+        return 0.2; // Reward for survival.
 }
 
 }

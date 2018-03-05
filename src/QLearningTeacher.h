@@ -31,7 +31,7 @@ protected:
     std::unique_ptr<NeuralNetwork::LearningNetwork> loadNeuralNetwork() const;
     void performLearning() const;
     void serializeNetwork() const;
-    double computeReward(bool moveFailed) const;
+    double computeReward(bool moveFailed, bool scoreIncreased) const;
 
 private:
     std::string _networkFileName;
