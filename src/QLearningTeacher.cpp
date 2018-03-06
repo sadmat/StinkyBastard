@@ -191,7 +191,7 @@ void QLearningTeacher::printStats(unsigned epoch, unsigned score, unsigned steps
               << "] score:\t" << score
               << ", steps:\t" << steps
               << ", illegal steps:\t" << illegalSteps
-              << " (" << (illegalSteps/steps) * 100 << "%)" << std::endl;
+              << " (" << (double(illegalSteps)/steps) * 100 << "%)" << std::endl;
 }
 
 }
