@@ -158,13 +158,13 @@ void QLearningTeacher::serializeNetwork() const
 double QLearningTeacher::computeReward(bool moveFailed, bool scoreIncreased) const
 {
     if (moveFailed)
-        return -0.5;
+        return -1.0;
     else if (_game->isGameOver())
         return -1.0;
     else if (scoreIncreased)
         return 1.0; // TODO: should reward depend on score?
     else
-        return 0.2; // Reward for survival.
+        return 0.1; // Reward for survival.
 }
 
 std::function<bool()> QLearningTeacher::learningCondition(const unsigned &epoch, const unsigned &score) const
