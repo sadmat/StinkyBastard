@@ -96,6 +96,13 @@ void QLearningTeacher::performLearning() const
                 agentStepCount = 0;
                 illegalMoveCount = 0;
             }
+            else if ((agentStepCount + 1 ) % 1000 == 0)
+            {
+                std::cout << "[epoch: " << epoch + 1
+                          << "] agent steps: " << agentStepCount
+                          << ", illegal movements: " << illegalMoveCount
+                          << ", score: " << _game->score() << std::endl;
+            }
 
             auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
             auto qValues = NetworkOutputConverter::outputToMoves(_network->responses(currentStateSignal));
