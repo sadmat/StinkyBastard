@@ -34,6 +34,7 @@ protected:
     void serializeNetwork() const;
     double computeReward(bool moveFailed, bool scoreIncreased) const;
     std::function<bool()> learningCondition(const unsigned &epoch, const unsigned &score) const;
+    void printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps) const;
 
 private:
     std::string _networkFileName;

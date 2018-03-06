@@ -88,21 +88,13 @@ void QLearningTeacher::performLearning() const
         {
             if (_game->isGameOver())
             {
-                std::cout << "[epoch: " << epoch + 1
-                          << "] Game over with agent steps: " << agentStepCount
-                          << ", illegal movements: " << illegalMoveCount
-                          << ", score: " << _game->score() << std::endl;
+                printStats(epoch, _game->score(), agentStepCount, illegalMoveCount);
                 _game->reset();
                 agentStepCount = 0;
                 illegalMoveCount = 0;
             }
-            else if ((agentStepCount + 1 ) % 1000 == 0)
-            {
-                std::cout << "[epoch: " << epoch + 1
-                          << "] agent steps: " << agentStepCount
-                          << ", illegal movements: " << illegalMoveCount
-                          << ", score: " << _game->score() << std::endl;
-            }
+            else if (agentStepCount > 0 && agentStepCount % 1000 == 0)
+                printStats(epoch, _game->score(), agentStepCount, illegalMoveCount);
 
             auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
             auto qValues = NetworkOutputConverter::outputToMoves(_network->responses(currentStateSignal));
@@ -191,6 +183,15 @@ std::function<bool()> QLearningTeacher::learningCondition(const unsigned &epoch,
         return std::bind(c);
     }
     return std::bind([] () -> bool { return false; });
+}
+
+void QLearningTeacher::printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps) const
+{
+    std::cout << "[epoch:\t" << epoch
+              << "] score:\t" << score
+              << ", steps:\t" << steps
+              << ", illegal steps:\t" << illegalSteps
+              << " (" << (illegalSteps/steps) * 100 << "%)" << std::endl;
 }
 
 }
