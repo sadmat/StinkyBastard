@@ -3,6 +3,7 @@ find_path(WT_INCLUDE_PATH Wt/WServer.h
           /usr/local/include)
 find_library(WT_LIBRARY wt)
 find_library(WTHTTP_LIBRARY wthttp)
+find_library(FANN_LIBRARY fann)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP jsoncpp)
@@ -65,5 +66,6 @@ target_link_libraries(nn2048
     ${WT_LIBRARY}
     ${WTHTTP_LIBRARY}
     ${Boost_LIBRARIES}
+    ${FANN_LIBRARY}
 )
 set_property(TARGET nn2048 PROPERTY CXX_STANDARD 14)

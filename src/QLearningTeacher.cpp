@@ -3,10 +3,9 @@
 //
 
 #include "QLearningTeacher.h"
-#include <NetworkSerializer.h>
 #include <iostream>
-#include <fstream>
 #include <stdexcept>
+#include <boost/filesystem.hpp>
 #include "utils/BoardSignalConverter.h"
 #include "utils/NetworkOutputConverter.h"
 
@@ -34,7 +33,14 @@ _game(std::make_unique<Game2048Core::GameCore>(gameBoardSideLength))
 
 int QLearningTeacher::run()
 {
-    _network = loadNeuralNetwork();
+    if (boost::filesystem::exists(_networkFileName))
+        _network = loadNeuralNetwork();
+    else
+    {
+        std::cout << "Neural network not found. Creating new one... ";
+        _network = createNeuralNetwork();
+        std::cout << "ok" << std::endl;
+    }
     if (!_network)
         return -1;
     performLearning();
@@ -47,25 +53,17 @@ void QLearningTeacher::onSigInt()
     _sigIntCaught = true;
 }
 
-std::unique_ptr<NeuralNetwork::LearningNetwork> QLearningTeacher::loadNeuralNetwork() const
+std::unique_ptr<FANN::neural_net> QLearningTeacher::loadNeuralNetwork() const
 {
     try
     {
         std::cout << "Loading neural network... ";
         std::cout.flush();
 
-        std::ifstream file(_networkFileName);
-        if (!file.is_open())
-        {
-            std::cout << "failed" << std::endl;
-            std::cerr << "Could not open file " << _networkFileName << std::endl;
-            return nullptr;
-        }
+        auto network = std::make_unique<FANN::neural_net>(_networkFileName);
 
-        auto network = NeuralNetwork::NetworkSerializer::deserialize(file);
-        file.close();
         std::cout << "ok" << std::endl;
-        return std::make_unique<NeuralNetwork::LearningNetwork>(std::move(network));
+        return network;
     }
     catch (std::runtime_error &exception)
     {
@@ -75,76 +73,31 @@ std::unique_ptr<NeuralNetwork::LearningNetwork> QLearningTeacher::loadNeuralNetw
     return nullptr;
 }
 
+std::unique_ptr<FANN::neural_net> QLearningTeacher::createNeuralNetwork() const
+{
+    const int networkType = FANN::LAYER;
+    const unsigned int layerCount = 4;
+    const unsigned int neuronCounts[] = { 16, 256, 128, 4 };
+    auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, neuronCounts);
+
+    network->set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
+    network->set_activation_function_output(FANN::LINEAR);
+    network->set_learning_rate(static_cast<float>(_learningRate));
+    network->set_learning_momentum(static_cast<float>(_momentum));
+    network->randomize_weights(-0.1f, 0.1f);
+
+    return network;
+}
+
 void QLearningTeacher::performLearning() const
 {
-    try
-    {
-        std::cout << "Learning starts..." << std::endl;
-        unsigned epoch = 0;
-        unsigned agentStepCount = 0;
-        unsigned illegalMoveCount = 0;
-        auto condition = learningCondition(epoch, _game->state().score);
-        for (; condition() && !_sigIntCaught; ++epoch)
-        {
-            if (_game->isGameOver())
-            {
-                printStats(epoch, _game->score(), agentStepCount, illegalMoveCount);
-                _game->reset();
-                agentStepCount = 0;
-                illegalMoveCount = 0;
-            }
-            else if (agentStepCount > 0 && agentStepCount % 1000 == 0)
-                printStats(epoch, _game->score(), agentStepCount, illegalMoveCount);
-
-            auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
-            auto qValues = NetworkOutputConverter::outputToMoves(_network->responses(currentStateSignal));
-            unsigned prevScore = _game->score();
-            bool moveFailed = !_game->tryMove(qValues.front().first);
-            double reward = computeReward(moveFailed, prevScore < _game->score());
-            auto newStateSignal = BoardSignalConverter::boardToSignal(_game->board());
-            _network->performQLearning((unsigned)qValues.front().first,
-                                       reward,
-                                       currentStateSignal,
-                                       newStateSignal,
-                                       _learningRate,
-                                       _momentum,
-                                       _gamma);
-            if (moveFailed)
-                ++illegalMoveCount;
-            ++agentStepCount;
-        }
-    }
-    catch (std::invalid_argument &exception)
-    {
-        std::cerr << "Invalid argument: " << exception.what() << std::endl;
-    }
-
 }
 
 void QLearningTeacher::serializeNetwork() const
 {
-    try
-    {
-        std::cout << "Serializing network... ";
-        std::cout.flush();
-
-        std::ofstream file(_networkFileName);
-        if (!file.is_open())
-        {
-            std::cout << "failed" << std::endl;
-            std::cerr << "Could not open file " << _networkFileName << std::endl;
-            return;
-        }
-
-        NeuralNetwork::NetworkSerializer::serialize(_network.get(), file);
-        file.close();
-        std::cout << "ok" << std::endl;
-    }
-    catch (std::runtime_error &exception)
-    {
-        std::cout << "failed" << std::endl;
-        std::cerr << "Runtime error: " << exception.what() << std::endl;
-    }
+    std::cout << "Serializing network... ";
+    _network->save(_networkFileName);
+    std::cout << "ok" << std::endl;
 }
 
 double QLearningTeacher::computeReward(bool moveFailed, bool scoreIncreased) const

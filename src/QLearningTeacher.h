@@ -9,8 +9,9 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include <LearningNetwork.h>
 #include <GameCore.h>
+#include <fann.h>
+#include <fann_cpp.h>
 
 namespace nn2048
 {
@@ -29,7 +30,8 @@ public:
     void onSigInt();
 
 protected:
-    std::unique_ptr<NeuralNetwork::LearningNetwork> loadNeuralNetwork() const;
+    std::unique_ptr<FANN::neural_net> loadNeuralNetwork() const;
+    std::unique_ptr<FANN::neural_net> createNeuralNetwork() const;
     void performLearning() const;
     void serializeNetwork() const;
     double computeReward(bool moveFailed, bool scoreIncreased) const;
@@ -44,7 +46,7 @@ private:
     double _learningRate;
     double _momentum;
     bool _sigIntCaught;
-    std::unique_ptr<NeuralNetwork::LearningNetwork> _network;
+    std::unique_ptr<FANN::neural_net> _network;
     std::unique_ptr<Game2048Core::GameCore> _game;
 };
 
