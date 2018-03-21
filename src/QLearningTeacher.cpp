@@ -210,10 +210,12 @@ double QLearningTeacher::computeReward(bool moveFailed, unsigned deltaScore) con
         return -1.0;
     else if (_game->isGameOver())
         return -1.0;
-    else if (deltaScore > 0) // should return deltaScore / maxTileValue?
-        return 1.0; // TODO: should reward depend on score?
-    else
-        return 0.1; // Reward for survival.
+    else if (deltaScore > 0)
+    {
+        auto maxTileValue = BoardSignalConverter::maxTileValue(_game->board());
+        return (static_cast<double>(deltaScore) / maxTileValue) * 2.0;
+    }
+    return 0.0;
 }
 
 std::function<bool()> QLearningTeacher::learningCondition(const unsigned &age, const unsigned &score) const

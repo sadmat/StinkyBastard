@@ -11,7 +11,6 @@ class BoardSignalConverter
 public:
     static std::vector<double> boardToSignal(const Game2048Core::BoardState &board);
 
-protected:
     static double maxTileValue(const Game2048Core::BoardState &board);
 };
 
