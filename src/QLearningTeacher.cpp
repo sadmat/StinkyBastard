@@ -82,12 +82,6 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::createNeuralNetwork() const
     const unsigned int neuronCounts[] = { 16, 256, 128, 4 };
     auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, neuronCounts);
 
-    network->set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
-    network->set_activation_function_output(FANN::LINEAR);
-    network->set_learning_rate(static_cast<float>(_learningRate));
-    network->set_learning_momentum(static_cast<float>(_momentum));
-    network->randomize_weights(-0.1, 0.1);
-
     return network;
 }
 
@@ -98,6 +92,12 @@ void QLearningTeacher::performLearning() const
     unsigned agentStepCount = 0;
     unsigned illegalMoves = 0;
     auto shouldContinueLearning = learningCondition(age, _game->state().score);
+
+    _network->set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
+    _network->set_activation_function_output(FANN::LINEAR);
+    _network->set_training_algorithm(FANN::TRAIN_BATCH);
+    _network->set_learning_rate(static_cast<float>(_learningRate));
+    _network->set_learning_momentum(static_cast<float>(_momentum));
 
     while (shouldContinueLearning() && !_sigIntCaught)
     {
