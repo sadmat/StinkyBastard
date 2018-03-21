@@ -14,6 +14,7 @@ class NetworkOutputConverter
 {
 public:
     static DirectionSignalVector outputToMoves(const std::vector<double> &output);
+    static DirectionSignalVector outputToMoves(const double *output);
 };
 
 }

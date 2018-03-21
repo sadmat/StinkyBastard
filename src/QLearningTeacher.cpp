@@ -8,6 +8,7 @@
 #include <boost/filesystem.hpp>
 #include "utils/BoardSignalConverter.h"
 #include "utils/NetworkOutputConverter.h"
+#include "utils/ReplayMemory.h"
 
 namespace nn2048
 {
@@ -15,14 +16,14 @@ namespace nn2048
 const unsigned gameBoardSideLength = 4;
 
 QLearningTeacher::QLearningTeacher(const std::string &networkFileName,
-                                   unsigned maxEpochs,
+                                   unsigned maxAge,
                                    unsigned targetScore,
                                    double gamma,
                                    double learningRate,
                                    double momentum)
     :
 _networkFileName(networkFileName),
-_maxEpochs(maxEpochs),
+_maxAge(maxAge),
 _targetScore(targetScore),
 _gamma(gamma),
 _learningRate(learningRate),
@@ -43,6 +44,7 @@ int QLearningTeacher::run()
     }
     if (!_network)
         return -1;
+    std::cout << "Learning starts..." << std::endl;
     performLearning();
     serializeNetwork();
     return 0;
@@ -84,13 +86,108 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::createNeuralNetwork() const
     network->set_activation_function_output(FANN::LINEAR);
     network->set_learning_rate(static_cast<float>(_learningRate));
     network->set_learning_momentum(static_cast<float>(_momentum));
-    network->randomize_weights(-0.1f, 0.1f);
+    network->randomize_weights(-0.1, 0.1);
 
     return network;
 }
 
 void QLearningTeacher::performLearning() const
 {
+    ReplayMemory replayMemory(10000);
+    unsigned age = 0;
+    unsigned agentStepCount = 0;
+    unsigned illegalMoves = 0;
+    auto shouldContinueLearning = learningCondition(age, _game->state().score);
+
+    while (shouldContinueLearning() && !_sigIntCaught)
+    {
+        if (_game->isGameOver())
+        {
+            printStats(age, _game->score(), agentStepCount, illegalMoves);
+            _game->reset();
+            agentStepCount = 0;
+            illegalMoves = 0;
+        }
+        else if (agentStepCount > 0 && agentStepCount % 1000 == 0)
+            printStats(age, _game->score(), agentStepCount, illegalMoves);
+
+        // Pick action
+        // TODO: random or maxarg
+        auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
+        double *networkOutput = _network->run(&currentStateSignal[0]);
+        auto qValues = NetworkOutputConverter::outputToMoves(networkOutput);
+        // TODO: remove output
+        unsigned prevScore = _game->score();
+
+        // Carry out action
+        bool moveFailed = !_game->tryMove(qValues.front().first);
+        double reward = computeReward(moveFailed, prevScore < _game->score());
+        auto newStateSignal = BoardSignalConverter::boardToSignal(_game->board());
+
+        // Store replay
+        replayMemory.addState(currentStateSignal, qValues.front().first, reward, _game->isGameOver());
+
+        // Get training batch
+        unsigned batchSize = 500;
+        if (batchSize > replayMemory.currentSize())
+            batchSize = static_cast<unsigned>(replayMemory.currentSize());
+        auto trainingBatch = replayMemory.sampleBatch(batchSize);
+
+        // Train network
+        auto trainingData = prepareTrainingData(trainingBatch);
+        _network->train_epoch(trainingData);
+
+        ++age;
+    }
+}
+
+FANN::training_data QLearningTeacher::prepareTrainingData(const std::vector<const QLearningState *> &batch) const
+{
+    unsigned learningSetCount = static_cast<unsigned>(batch.size());
+    unsigned inputCount = 16;
+    unsigned outputCount = 4;
+    double **inputSets = new double*[batch.size()];
+    double **outputSets = new double*[batch.size()];
+
+    for (unsigned i = 0; i < batch.size(); ++i)
+    {
+        auto inputs = const_cast<double *>(&(batch[i]->boardSignal()[0]));
+        inputSets[i] = inputs;
+
+        auto networkOutputs = _network->run(inputs);
+        auto outputs = new double[outputCount];
+        for (unsigned j = 0; j < outputCount; ++j)
+            outputs[j] = networkOutputs[j];
+
+        double targetValue = batch[i]->receivedReward();
+        unsigned targetOutputIndex = static_cast<unsigned>(batch[i]->takenAction());
+        if (batch[i]->isInTerminalState() == false && batch[i]->nextState() != nullptr)
+        {
+            auto nextStateInputs = const_cast<double *>(&(batch[i]->nextState()->boardSignal()[0]));
+            auto nextStateOutputs = _network->run(nextStateInputs);
+            double nextActionQValue = nextStateOutputs[0];
+            for (unsigned j = 1; j < outputCount; ++j)
+                if (nextStateOutputs[j] > nextActionQValue)
+                    nextActionQValue = nextStateOutputs[j];
+
+            targetValue += _gamma * nextActionQValue;
+        }
+        outputs[targetOutputIndex] = targetValue;
+
+        outputSets[i] = outputs;
+    }
+
+    FANN::training_data trainingData;
+    trainingData.set_train_data(learningSetCount,
+                                inputCount,
+                                inputSets,
+                                outputCount,
+                                outputSets);
+    delete [] inputSets;
+    for (unsigned i = 0; i < learningSetCount; ++i)
+        delete [] outputSets[i];
+    delete [] outputSets;
+    return trainingData;
 }
 
 void QLearningTeacher::serializeNetwork() const
@@ -112,19 +209,19 @@ double QLearningTeacher::computeReward(bool moveFailed, bool scoreIncreased) con
         return 0.1; // Reward for survival.
 }
 
-std::function<bool()> QLearningTeacher::learningCondition(const unsigned &epoch, const unsigned &score) const
+std::function<bool()> QLearningTeacher::learningCondition(const unsigned &age, const unsigned &score) const
 {
-    if (_maxEpochs > 0 && _targetScore > 0)
+    if (_maxAge > 0 && _targetScore > 0)
     {
-        auto c = [&epoch, &score, this] () -> bool {
-            return epoch < this->_maxEpochs && score < this->_targetScore;
+        auto c = [&age, &score, this] () -> bool {
+            return age < this->_maxAge && score < this->_targetScore;
         };
         return std::bind(c);
     }
-    else if (_maxEpochs > 0)
+    else if (_maxAge > 0)
     {
-        auto c = [&epoch, this] () -> bool {
-            return epoch < this->_maxEpochs;
+        auto c = [&age, this] () -> bool {
+            return age < this->_maxAge;
         };
         return std::bind(c);
     }
@@ -140,7 +237,7 @@ std::function<bool()> QLearningTeacher::learningCondition(const unsigned &epoch,
 
 void QLearningTeacher::printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps) const
 {
-    std::cout << "[epoch:\t" << epoch
+    std::cout << "[age:\t" << epoch
               << "] score:\t" << score
               << ", steps:\t" << steps
               << ", illegal steps:\t" << illegalSteps

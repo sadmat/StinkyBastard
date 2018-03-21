@@ -1,16 +1,21 @@
 #include "ReplayMemory.h"
 #include <stdexcept>
 #include <set>
+#include <random>
+#include <cstdlib>
 
 namespace nn2048
 {
 
 ReplayMemory::ReplayMemory(unsigned size):
-    _size(size),
-    _distribution(0, _size)
+    _size(size)
 {
     if (_size == 0)
         throw std::invalid_argument("Replay memory size cannot be 0");
+
+    std::random_device randomDevice;
+    std::uniform_int_distribution<unsigned> distribution(0, static_cast<unsigned>(time(nullptr)));
+    srand(distribution(randomDevice));
 }
 
 void ReplayMemory::addState(std::vector<double> boardSignal,
@@ -29,6 +34,8 @@ void ReplayMemory::addState(std::vector<double> boardSignal,
 
 std::vector<const QLearningState *> ReplayMemory::sampleBatch(unsigned size)
 {
+    if (!size)
+        throw std::invalid_argument("Sample batch size cannot be 0");
     if (size > _size)
         throw std::invalid_argument("Sample batch size cannot be greater than replay memory size");
     if (size > _memory.size())
@@ -40,7 +47,7 @@ std::vector<const QLearningState *> ReplayMemory::sampleBatch(unsigned size)
 
     while (batch.size() < size)
     {
-        unsigned index = _distribution(_randomDevice);
+        unsigned index = static_cast<unsigned>(rand()) % _memory.size();
         if (takenIndices.count(index) == 1) continue;
         takenIndices.insert(index);
 

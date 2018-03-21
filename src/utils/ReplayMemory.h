@@ -2,7 +2,6 @@
 #define REPLAYMEMORY_H
 
 #include <deque>
-#include <random>
 #include <memory>
 #include "QLearningState.h"
 
@@ -22,12 +21,11 @@ public:
     std::vector<QLearningState const *> sampleBatch(unsigned size);
 
     bool isFull() const { return _memory.size() == _size; }
+    unsigned long currentSize() const { return _memory.size(); }
 
 private:
     unsigned _size;
     std::deque<std::unique_ptr<QLearningState>> _memory;
-    std::random_device _randomDevice;
-    std::uniform_int_distribution<unsigned> _distribution;
 };
 
 }
