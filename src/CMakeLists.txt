@@ -3,7 +3,9 @@ find_path(WT_INCLUDE_PATH Wt/WServer.h
           /usr/local/include)
 find_library(WT_LIBRARY wt)
 find_library(WTHTTP_LIBRARY wthttp)
-find_library(FANN_LIBRARY fann)
+find_library(FANN_LIBRARY doublefann)
+
+MESSAGE("FANN_LIBRARY ${FANN_LIBRARY}")
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(JSONCPP jsoncpp)

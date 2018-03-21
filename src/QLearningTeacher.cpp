@@ -82,7 +82,7 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::createNeuralNetwork() const
     const unsigned int layerCount = 4;
     const unsigned int neuronCounts[] = { 16, 256, 128, 4 };
     auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, neuronCounts);
-    network->randomize_weights(-0.77, 0.77);
+    //network->randomize_weights(-0.77, 0.77);
     return network;
 }
 
