@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <boost/filesystem.hpp>
+#include <cmath>
 #include "utils/BoardSignalConverter.h"
 #include "utils/NetworkOutputConverter.h"
 #include "utils/ReplayMemory.h"
@@ -116,12 +117,11 @@ void QLearningTeacher::performLearning() const
         auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
         double *networkOutput = _network->run(&currentStateSignal[0]);
         auto qValues = NetworkOutputConverter::outputToMoves(networkOutput);
-        // TODO: remove output
         unsigned prevScore = _game->score();
 
         // Carry out action
         bool moveFailed = !_game->tryMove(qValues.front().first);
-        double reward = computeReward(moveFailed, prevScore < _game->score());
+        double reward = computeReward(moveFailed, _game->score() - prevScore);
         auto newStateSignal = BoardSignalConverter::boardToSignal(_game->board());
 
         // Store replay
@@ -161,7 +161,9 @@ FANN::training_data QLearningTeacher::prepareTrainingData(const std::vector<cons
 
         double targetValue = batch[i]->receivedReward();
         unsigned targetOutputIndex = static_cast<unsigned>(batch[i]->takenAction());
-        if (batch[i]->isInTerminalState() == false && batch[i]->nextState() != nullptr)
+        if (std::fabs(batch[i]->receivedReward() + 1.0) < 0.0001
+            && batch[i]->isInTerminalState() == false
+            && batch[i]->nextState() != nullptr)
         {
             auto nextStateInputs = const_cast<double *>(&(batch[i]->nextState()->boardSignal()[0]));
             auto nextStateOutputs = _network->run(nextStateInputs);
@@ -197,13 +199,13 @@ void QLearningTeacher::serializeNetwork() const
     std::cout << "ok" << std::endl;
 }
 
-double QLearningTeacher::computeReward(bool moveFailed, bool scoreIncreased) const
+double QLearningTeacher::computeReward(bool moveFailed, unsigned deltaScore) const
 {
     if (moveFailed)
         return -1.0;
     else if (_game->isGameOver())
         return -1.0;
-    else if (scoreIncreased)
+    else if (deltaScore > 0) // should return deltaScore / maxTileValue?
         return 1.0; // TODO: should reward depend on score?
     else
         return 0.1; // Reward for survival.
@@ -227,7 +229,7 @@ std::function<bool()> QLearningTeacher::learningCondition(const unsigned &age, c
     }
     else if (_targetScore > 0)
     {
-        auto c= [&score, this] () -> bool {
+        auto c = [&score, this] () -> bool {
             return score < _targetScore;
         };
         return std::bind(c);
