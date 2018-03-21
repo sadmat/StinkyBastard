@@ -138,6 +138,9 @@ void QLearningTeacher::performLearning() const
         _network->train_epoch(trainingData);
 
         ++age;
+        ++agentStepCount;
+        if (moveFailed)
+            ++illegalMoves;
     }
 }
 
