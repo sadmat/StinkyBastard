@@ -82,7 +82,7 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::createNeuralNetwork() const
     const unsigned int layerCount = 4;
     const unsigned int neuronCounts[] = { 16, 256, 128, 4 };
     auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, neuronCounts);
-
+    network->randomize_weights(-0.77, 0.77);
     return network;
 }
 
@@ -142,6 +142,8 @@ void QLearningTeacher::performLearning() const
         if (moveFailed)
             ++illegalMoves;
     }
+    std::cout << "Learning finished with stats: " << std::endl;
+    printStats(age, _game->score(), agentStepCount, illegalMoves);
 }
 
 FANN::training_data QLearningTeacher::prepareTrainingData(const std::vector<const QLearningState *> &batch) const
