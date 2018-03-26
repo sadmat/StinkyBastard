@@ -124,6 +124,8 @@ std::unique_ptr<FANN::neural_net> NetworkCreator::createFann() const
     auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, layerSizes);
 
     network->randomize_weights(-_distributionAmplitude / 2.0, _distributionAmplitude / 2.0);
+    network->set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
+    network->set_activation_function_output(FANN::LINEAR);
 
     return network;
 }
