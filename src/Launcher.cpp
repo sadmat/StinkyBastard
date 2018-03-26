@@ -398,6 +398,7 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
     double gamma = DefaultGammaFactor;
     double learningRate = DefaultLearningRate;
     double momentum = DefaultMomentumFactor;
+    double epsilon = DefaultEpsilonFactor;
 
     for (int i = 2; i < argc; ++i)
     {
@@ -417,16 +418,16 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
             networkFileName = argv[++i];
         }
         // Epochs
-        else if (strcmp("-e", argv[i]) == 0)
+        else if (strcmp("-a", argv[i]) == 0)
         {
             if (maxEpochs)
             {
-                std::cerr << "Epochs limit already set" << std::endl;
+                std::cerr << "Age limit already set" << std::endl;
                 return nullptr;
             }
             if (argc < i + 1)
             {
-                std::cerr << "Epochs limit argument requires parameter" << std::endl;
+                std::cerr << "Age limit argument requires parameter" << std::endl;
                 return nullptr;
             }
             try
@@ -514,6 +515,21 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
                 return nullptr;
             }
         }
+        // Epsilon
+        else if (strcmp("-e", argv[i]) == 0)
+        {
+            if (argc <= i + 1)
+            {
+                std::cerr << "Epsilon argument requires parameter" << std::endl;
+                return nullptr;
+            }
+            try {
+                epsilon = std::stod(argv[++i]);
+            } catch (std::runtime_error &exception) {
+                std::cerr << "Exception during epsilon parsing: " << exception.what() << std::endl;
+                return nullptr;
+            }
+        }
         else
         {
             std::cerr << "Unknown argument: " << argv[i] << std::endl;
@@ -532,7 +548,7 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
         return nullptr;
     }
 
-    return std::make_unique<QLearningTeacher>(networkFileName, maxEpochs, targetScore, gamma, learningRate, momentum);
+    return std::make_unique<QLearningTeacher>(networkFileName, maxEpochs, targetScore, gamma, learningRate, momentum, epsilon);
 }
 
 std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])

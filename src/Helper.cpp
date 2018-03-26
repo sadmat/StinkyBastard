@@ -32,11 +32,12 @@ void Helper::showHelp() const
 
     std::cout << "qlearn mode - performs Q Learning algorythm" << std::endl;
     std::cout << "    -n file      - neural network file name" << std::endl;
-    std::cout << "    -e epochs    - limit learning by maximum number of epochs" << std::endl;
+    std::cout << "    -a max age   - limit learning by maximum number of epochs" << std::endl;
     std::cout << "    -s score     - limit learning by target score" << std::endl;
     std::cout << "    -g gamma     - gamma factor (optional, " << DefaultGammaFactor << " by default)" << std::endl;
     std::cout << "    -r rate      - learning rate (optional, " << DefaultLearningRate << " by default)" << std::endl;
-    std::cout << "    -m momentum  - momentum factor (optional, " << DefaultMomentumFactor << " by default)" << std::endl << std::endl;
+    std::cout << "    -m momentum  - momentum factor (optional, " << DefaultMomentumFactor << " by default)" << std::endl;
+    std::cout << "    -e epsilon   - epsilon factor (optional, " << DefaultEpsilonFactor << " by default)" << std::endl << std::endl;
 
     std::cout << "webapp mode - launches 2048 web application" << std::endl;
     std::cout << "    -p port      - specify port to deploy app to (" << DefaultServerPort << " by default)" << std::endl;

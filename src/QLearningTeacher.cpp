@@ -6,7 +6,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <boost/filesystem.hpp>
-#include <cmath>
+#include <random>
 #include "utils/BoardSignalConverter.h"
 #include "utils/NetworkOutputConverter.h"
 #include "utils/ReplayMemory.h"
@@ -21,16 +21,18 @@ QLearningTeacher::QLearningTeacher(const std::string &networkFileName,
                                    unsigned targetScore,
                                    double gamma,
                                    double learningRate,
-                                   double momentum)
+                                   double momentum,
+                                   double epsilon)
     :
-_networkFileName(networkFileName),
-_maxAge(maxAge),
-_targetScore(targetScore),
-_gamma(gamma),
-_learningRate(learningRate),
-_momentum(momentum),
-_network(nullptr),
-_game(std::make_unique<Game2048Core::GameCore>(gameBoardSideLength))
+      _networkFileName(networkFileName),
+      _maxAge(maxAge),
+      _targetScore(targetScore),
+      _gamma(gamma),
+      _learningRate(learningRate),
+      _momentum(momentum),
+      _epsilon(epsilon),
+      _network(nullptr),
+      _game(std::make_unique<Game2048Core::GameCore>(gameBoardSideLength))
 {}
 
 int QLearningTeacher::run()
@@ -88,6 +90,9 @@ void QLearningTeacher::performLearning() const
     _network->set_learning_rate(static_cast<float>(_learningRate));
     _network->set_learning_momentum(static_cast<float>(_momentum));
 
+    std::default_random_engine randomEngine;
+    std::uniform_real_distribution<double> randomDistrib(0, 1);
+
     while (shouldContinueLearning() && !_sigIntCaught)
     {
         if (_game->isGameOver())
@@ -100,21 +105,32 @@ void QLearningTeacher::performLearning() const
         else if (agentStepCount > 0 && agentStepCount % 1000 == 0)
             printStats(age, _game->score(), agentStepCount, illegalMoves);
 
-        // Pick action
-        // TODO: random or maxarg
         auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
-        double *networkOutput = _network->run(&currentStateSignal[0]);
-        auto qValues = NetworkOutputConverter::outputToMoves(networkOutput);
+
+        // Pick action
+        Game2048Core::Direction pickedDirection;
+        if (randomDistrib(randomEngine) <= _epsilon) {
+            // Random
+            int totalDirections = static_cast<unsigned>(Game2048Core::Direction::Total);
+            pickedDirection = static_cast<Game2048Core::Direction>(rand() % totalDirections);
+        }
+        else {
+            // Best
+            double *networkOutput = _network->run(&currentStateSignal[0]);
+            auto qValues = NetworkOutputConverter::outputToMoves(networkOutput);
+            pickedDirection = qValues.front().first;
+        }
+
         unsigned prevScore = _game->score();
 
         // Carry out action
-        bool moveFailed = !_game->tryMove(qValues.front().first);
+        bool moveFailed = !_game->tryMove(pickedDirection);
         double reward = computeReward(moveFailed, _game->score() - prevScore);
         auto newStateSignal = BoardSignalConverter::boardToSignal(_game->board());
 
         // Store replay
-        if (!moveFailed || prevDirection != qValues.front().first || !prevMoveFailed)
-            replayMemory.addState(currentStateSignal, qValues.front().first, reward, _game->isGameOver());
+        if (!moveFailed || prevDirection != pickedDirection || !prevMoveFailed)
+            replayMemory.addState(currentStateSignal, pickedDirection, reward, _game->isGameOver());
 
         // Get training batch
         unsigned batchSize = 500;
@@ -129,7 +145,7 @@ void QLearningTeacher::performLearning() const
         if (moveFailed)
             ++illegalMoves;
         prevMoveFailed = moveFailed;
-        prevDirection = qValues.front().first;
+        prevDirection = pickedDirection;
     }
     std::cout << "Learning finished with stats: " << std::endl;
     printStats(age, _game->score(), agentStepCount, illegalMoves);

@@ -22,11 +22,12 @@ class QLearningTeacher: public Application
 {
 public:
     QLearningTeacher(const std::string &networkFileName,
-                         unsigned maxAge,
-                         unsigned targetScore,
-                         double gamma,
-                         double learningRate,
-                         double momentum);
+                     unsigned maxAge,
+                     unsigned targetScore,
+                     double gamma,
+                     double learningRate,
+                     double momentum,
+                     double epsilon);
 
     int run();
     void onSigInt();
@@ -47,6 +48,7 @@ private:
     double _gamma;
     double _learningRate;
     double _momentum;
+    double _epsilon;
     bool _sigIntCaught;
     std::unique_ptr<FANN::neural_net> _network;
     std::unique_ptr<Game2048Core::GameCore> _game;
