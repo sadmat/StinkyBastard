@@ -81,6 +81,8 @@ void QLearningTeacher::performLearning() const
     unsigned age = 0;
     unsigned agentStepCount = 0;
     unsigned illegalMoves = 0;
+    bool prevMoveFailed = false;
+    Game2048Core::Direction prevDirection = Game2048Core::Direction::None;
     auto shouldContinueLearning = learningCondition(age, _game->state().score);
 
     _network->set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
@@ -114,7 +116,8 @@ void QLearningTeacher::performLearning() const
         auto newStateSignal = BoardSignalConverter::boardToSignal(_game->board());
 
         // Store replay
-        replayMemory.addState(currentStateSignal, qValues.front().first, reward, _game->isGameOver());
+        if (!moveFailed || prevDirection != qValues.front().first || !prevMoveFailed)
+            replayMemory.addState(currentStateSignal, qValues.front().first, reward, _game->isGameOver());
 
         // Get training batch
         unsigned batchSize = 500;
@@ -130,6 +133,8 @@ void QLearningTeacher::performLearning() const
         ++agentStepCount;
         if (moveFailed)
             ++illegalMoves;
+        prevMoveFailed = moveFailed;
+        prevDirection = qValues.front().first;
     }
     std::cout << "Learning finished with stats: " << std::endl;
     printStats(age, _game->score(), agentStepCount, illegalMoves);
