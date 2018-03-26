@@ -79,7 +79,7 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::loadNeuralNetwork() const
 
 void QLearningTeacher::performLearning() const
 {
-    ReplayMemory replayMemory(10000);
+    ReplayMemory replayMemory(20000);
     unsigned age = 0;
     unsigned agentStepCount = 0;
     unsigned illegalMoves = 0;
@@ -133,7 +133,7 @@ void QLearningTeacher::performLearning() const
             replayMemory.addState(currentStateSignal, pickedDirection, reward, _game->isGameOver());
 
         // Get training batch
-        unsigned batchSize = 500;
+        unsigned batchSize = 1000;
         if (batchSize > replayMemory.currentSize())
             batchSize = static_cast<unsigned>(replayMemory.currentSize());
         auto trainingBatch = replayMemory.sampleBatch(batchSize);
