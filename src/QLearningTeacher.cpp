@@ -39,9 +39,8 @@ int QLearningTeacher::run()
         _network = loadNeuralNetwork();
     else
     {
-        std::cout << "Neural network not found. Creating new one... ";
-        _network = createNeuralNetwork();
-        std::cout << "ok" << std::endl;
+        std::cout << "Neural network not found.";
+        return -1;
     }
     if (!_network)
         return -1;
@@ -74,16 +73,6 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::loadNeuralNetwork() const
         std::cerr << "Runtime exception: " << exception.what() << std::endl;
     }
     return nullptr;
-}
-
-std::unique_ptr<FANN::neural_net> QLearningTeacher::createNeuralNetwork() const
-{
-    const int networkType = FANN::LAYER;
-    const unsigned int layerCount = 4;
-    const unsigned int neuronCounts[] = { 16, 256, 128, 4 };
-    auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, neuronCounts);
-    //network->randomize_weights(-0.77, 0.77);
-    return network;
 }
 
 void QLearningTeacher::performLearning() const

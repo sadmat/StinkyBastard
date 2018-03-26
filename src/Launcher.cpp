@@ -143,6 +143,7 @@ std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char 
 {
     std::string structureString;
     std::string fileName;
+    bool fannNetwork = false;
     double distributionAmplitude = DefaultWeightDistribution;
 
     for (unsigned i = 2; i < argc; ++i)
@@ -194,6 +195,15 @@ std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char 
                 return nullptr;
             }
         }
+        else if (strcmp("-f", argv[i]) == 0)
+        {
+            if (fannNetwork)
+            {
+                std::cerr << "FANN switch already set" << std::endl;
+                return nullptr;
+            }
+            else fannNetwork = true;
+        }
         else
         {
             std::cerr << "Unknown parameter: " << argv[i];
@@ -229,7 +239,7 @@ std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char 
         }
         structure.push_back(value);
     }
-    return std::make_unique<NetworkCreator>(structure, fileName, distributionAmplitude);
+    return std::make_unique<NetworkCreator>(structure, fileName, distributionAmplitude, fannNetwork);
 }
 
 std::unique_ptr<Application> Launcher::networkTeacherApplication(int argc, char *argv[])

@@ -33,7 +33,6 @@ public:
 
 protected:
     std::unique_ptr<FANN::neural_net> loadNeuralNetwork() const;
-    std::unique_ptr<FANN::neural_net> createNeuralNetwork() const;
     void performLearning() const;
     FANN::training_data prepareTrainingData(const std::vector<const QLearningState *> &batch) const;
     void serializeNetwork() const;

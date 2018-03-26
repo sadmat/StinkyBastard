@@ -8,10 +8,12 @@ namespace nn2048
 
 NetworkCreator::NetworkCreator(const std::vector<unsigned> &structure,
                                const std::string &fileName,
-                               double distributionAmplitude):
+                               double distributionAmplitude,
+                               bool fannNetwork):
     _structure(structure),
     _fileName(fileName),
-    _distributionAmplitude(distributionAmplitude)
+    _distributionAmplitude(distributionAmplitude),
+    _fannNetwork(fannNetwork)
 {}
 
 int NetworkCreator::run()
@@ -22,16 +24,33 @@ int NetworkCreator::run()
         return 0;
     }
 
-    std::cout << "Creating network... ";
-    auto network = createNetwork();
-    if (!network)
+    if (!_fannNetwork)
     {
-        std::cout << "failed" << std::endl;
-        return 0;
-    }
-    else std::cout << "ok" << std::endl;
+        std::cout << "Creating network... ";
+        auto network = createNetwork();
+        if (!network)
+        {
+            std::cout << "failed" << std::endl;
+            return 0;
+        }
+        else std::cout << "ok" << std::endl;
 
-    serialize(network.get());
+        serialize(network.get());
+    }
+    else
+    {
+        std::cout << "Creating network...";
+        auto network = createFann();
+        if (!network)
+        {
+            std::cout << "failed" << std::endl;
+            return 0;
+        }
+        else std::cout << "ok" << std::endl;
+
+        serializeFann(network.get());
+    }
+
     return 0;
 }
 
@@ -95,6 +114,27 @@ void NetworkCreator::serialize(const NeuralNetwork::Network *network) const
         std::cout << "failed" << std::endl;
         std::cerr << "Runtime exception: " << exception.what() << std::endl;
     }
+}
+
+std::unique_ptr<FANN::neural_net> NetworkCreator::createFann() const
+{
+    FANN::network_type_enum networkType = FANN::LAYER;
+    unsigned layerCount = static_cast<unsigned>(_structure.size());
+    const unsigned *layerSizes = &_structure[0];
+    auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, layerSizes);
+
+    network->randomize_weights(-_distributionAmplitude / 2.0, _distributionAmplitude / 2.0);
+
+    return network;
+}
+
+void NetworkCreator::serializeFann(FANN::neural_net *network) const
+{
+    std::cout << "Serializing... ";
+    if (network->save(_fileName))
+        std::cout << "ok" << std::endl;
+    else
+        std::cout << "failed" << std::endl;
 }
 
 }
