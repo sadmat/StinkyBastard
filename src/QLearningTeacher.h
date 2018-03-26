@@ -34,7 +34,7 @@ public:
 protected:
     std::unique_ptr<FANN::neural_net> loadNeuralNetwork() const;
     void performLearning() const;
-    FANN::training_data prepareTrainingData(const std::vector<const QLearningState *> &batch) const;
+    void trainNetwork(const std::vector<const QLearningState *> &batch) const;
     void serializeNetwork() const;
     double computeReward(bool moveFailed, unsigned deltaScore) const;
     std::function<bool()> learningCondition(const unsigned &age, const unsigned &score) const;

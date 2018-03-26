@@ -85,9 +85,6 @@ void QLearningTeacher::performLearning() const
     Game2048Core::Direction prevDirection = Game2048Core::Direction::None;
     auto shouldContinueLearning = learningCondition(age, _game->state().score);
 
-    _network->set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
-    _network->set_activation_function_output(FANN::LINEAR);
-    _network->set_training_algorithm(FANN::TRAIN_BATCH);
     _network->set_learning_rate(static_cast<float>(_learningRate));
     _network->set_learning_momentum(static_cast<float>(_momentum));
 
@@ -125,9 +122,7 @@ void QLearningTeacher::performLearning() const
             batchSize = static_cast<unsigned>(replayMemory.currentSize());
         auto trainingBatch = replayMemory.sampleBatch(batchSize);
 
-        // Train network
-        auto trainingData = prepareTrainingData(trainingBatch);
-        _network->train_epoch(trainingData);
+        trainNetwork(trainingBatch);
 
         ++age;
         ++agentStepCount;
@@ -140,31 +135,21 @@ void QLearningTeacher::performLearning() const
     printStats(age, _game->score(), agentStepCount, illegalMoves);
 }
 
-FANN::training_data QLearningTeacher::prepareTrainingData(const std::vector<const QLearningState *> &batch) const
+void QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> &batch) const
 {
-    unsigned learningSetCount = static_cast<unsigned>(batch.size());
-    unsigned inputCount = 16;
-    unsigned outputCount = 4;
-    double **inputSets = new double*[batch.size()];
-    double **outputSets = new double*[batch.size()];
+    const unsigned outputCount = static_cast<unsigned>(Game2048Core::Direction::Total);
+    double outputs[outputCount];
+    for (auto &state: batch) {
+        double *inputs = const_cast<double *>(&(state->boardSignal()[0]));
+        auto response = _network->run(inputs);
+        for (unsigned i = 0; i < outputCount; ++i)
+            outputs[i] = response[i];
 
-    for (unsigned i = 0; i < batch.size(); ++i)
-    {
-        auto inputs = const_cast<double *>(&(batch[i]->boardSignal()[0]));
-        inputSets[i] = inputs;
-
-        auto networkOutputs = _network->run(inputs);
-        auto outputs = new double[outputCount];
-        for (unsigned j = 0; j < outputCount; ++j)
-            outputs[j] = networkOutputs[j];
-
-        double targetValue = batch[i]->receivedReward();
-        unsigned targetOutputIndex = static_cast<unsigned>(batch[i]->takenAction());
-        if (std::fabs(batch[i]->receivedReward() + 1.0) < 0.0001
-            && batch[i]->isInTerminalState() == false
-            && batch[i]->nextState() != nullptr)
+        double targetValue = state->receivedReward();
+        unsigned targetOutputIndex = static_cast<unsigned>(state->takenAction());
+        if (state->isInTerminalState() == false && state->nextState() != nullptr)
         {
-            auto nextStateInputs = const_cast<double *>(&(batch[i]->nextState()->boardSignal()[0]));
+            auto nextStateInputs = const_cast<double *>(&(state->nextState()->boardSignal()[0]));
             auto nextStateOutputs = _network->run(nextStateInputs);
             double nextActionQValue = nextStateOutputs[0];
             for (unsigned j = 1; j < outputCount; ++j)
@@ -175,20 +160,8 @@ FANN::training_data QLearningTeacher::prepareTrainingData(const std::vector<cons
         }
         outputs[targetOutputIndex] = targetValue;
 
-        outputSets[i] = outputs;
+        _network->train(inputs, outputs);
     }
-
-    FANN::training_data trainingData;
-    trainingData.set_train_data(learningSetCount,
-                                inputCount,
-                                inputSets,
-                                outputCount,
-                                outputSets);
-    delete [] inputSets;
-    for (unsigned i = 0; i < learningSetCount; ++i)
-        delete [] outputSets[i];
-    delete [] outputSets;
-    return trainingData;
 }
 
 void QLearningTeacher::serializeNetwork() const
