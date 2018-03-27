@@ -84,6 +84,7 @@ void QLearningTeacher::performLearning() const
     unsigned agentStepCount = 0;
     unsigned illegalMoves = 0;
     bool prevMoveFailed = false;
+    double lossSum = 0;
     Game2048Core::Direction prevDirection = Game2048Core::Direction::None;
     auto shouldContinueLearning = learningCondition(age, _game->state().score);
 
@@ -97,13 +98,13 @@ void QLearningTeacher::performLearning() const
     {
         if (_game->isGameOver())
         {
-            printStats(age, _game->score(), agentStepCount, illegalMoves);
+            printStats(age, _game->score(), agentStepCount, illegalMoves, lossSum / age);
             _game->reset();
             agentStepCount = 0;
             illegalMoves = 0;
         }
         else if (agentStepCount > 0 && agentStepCount % 1000 == 0)
-            printStats(age, _game->score(), agentStepCount, illegalMoves);
+            printStats(age, _game->score(), agentStepCount, illegalMoves, lossSum / age);
 
         auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
 
@@ -138,7 +139,7 @@ void QLearningTeacher::performLearning() const
             batchSize = static_cast<unsigned>(replayMemory.currentSize());
         auto trainingBatch = replayMemory.sampleBatch(batchSize);
 
-        trainNetwork(trainingBatch);
+        lossSum += trainNetwork(trainingBatch);
 
         ++age;
         ++agentStepCount;
@@ -148,13 +149,14 @@ void QLearningTeacher::performLearning() const
         prevDirection = pickedDirection;
     }
     std::cout << "Learning finished with stats: " << std::endl;
-    printStats(age, _game->score(), agentStepCount, illegalMoves);
+    printStats(age, _game->score(), agentStepCount, illegalMoves, lossSum / age);
 }
 
-void QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> &batch) const
+double QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> &batch) const
 {
     const unsigned outputCount = static_cast<unsigned>(Game2048Core::Direction::Total);
     double outputs[outputCount];
+    double lossSum = 0.0;
     for (auto &state: batch) {
         double *inputs = const_cast<double *>(&(state->boardSignal()[0]));
         auto response = _network->run(inputs);
@@ -174,10 +176,15 @@ void QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> &b
 
             targetValue += _gamma * nextActionQValue;
         }
+        double loss = (targetValue - outputs[targetOutputIndex]);
+        loss *= loss;
+        loss *= 0.5;
+        lossSum += loss;
         outputs[targetOutputIndex] = targetValue;
 
         _network->train(inputs, outputs);
     }
+    return lossSum / static_cast<double>(batch.size());
 }
 
 void QLearningTeacher::serializeNetwork() const
@@ -227,13 +234,14 @@ std::function<bool()> QLearningTeacher::learningCondition(const unsigned &age, c
     return std::bind([] () -> bool { return false; });
 }
 
-void QLearningTeacher::printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps) const
+void QLearningTeacher::printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps, double loss) const
 {
     std::cout << "[age:\t" << epoch
               << "] score:\t" << score
               << ", steps:\t" << steps
               << ", illegal steps:\t" << illegalSteps
-              << " (" << (double(illegalSteps)/steps) * 100 << "%)" << std::endl;
+              << " (" << (double(illegalSteps)/steps) * 100
+              << "%) loss:\t " << loss << std::endl;
 }
 
 }
