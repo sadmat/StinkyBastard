@@ -35,11 +35,11 @@ public:
 protected:
     std::unique_ptr<FANN::neural_net> loadNeuralNetwork() const;
     void performLearning() const;
-    void trainNetwork(const std::vector<const QLearningState *> &batch) const;
+    double trainNetwork(const std::vector<const QLearningState *> &batch) const;
     void serializeNetwork() const;
     double computeReward(bool moveFailed, unsigned deltaScore) const;
     std::function<bool()> learningCondition(const unsigned &age, const unsigned &score) const;
-    void printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps) const;
+    void printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps, double loss, double currentLoss) const;
 
 private:
     std::string _networkFileName;
