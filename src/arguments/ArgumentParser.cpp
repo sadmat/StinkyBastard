@@ -1,6 +1,7 @@
 #include "ArgumentParser.h"
 #include <string>
 #include <iostream>
+#include <cstring>
 
 namespace nn2048 {
 
