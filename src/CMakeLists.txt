@@ -29,6 +29,7 @@ set(SOURCES
     utils/NetworkOutputConverter.cpp
     NetworkTeacher.cpp
     web/NeuralNetworkGameController.cpp
+    arguments/QLearningArguments.cpp
     utils/QLearningState.cpp
     QLearningTeacher.cpp
     utils/ReplayMemory.cpp
@@ -54,6 +55,7 @@ set(HEADERS
     utils/NetworkOutputConverter.h
     NetworkTeacher.h
     web/NeuralNetworkGameController.h
+    arguments/QLearningArguments.h
     utils/QLearningState.h
     QLearningTeacher.h
     utils/ReplayMemory.h
