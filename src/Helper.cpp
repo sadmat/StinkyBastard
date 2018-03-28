@@ -40,7 +40,7 @@ void Helper::showHelp() const
     std::cout << "    " << QLearningArguments::MomentumFactorArgument   << " momentum  - momentum factor (optional, " << DefaultMomentumFactor << " by default)" << std::endl;
     std::cout << "    " << QLearningArguments::EpsilonFactorArgument    << " epsilon   - epsilon factor (optional, " << DefaultEpsilonFactor << " by default)" << std::endl;
     std::cout << "    " << QLearningArguments::ReplayMemorySizeArgument << " size      - replay memory size (optional, " << DefaultReplayMemorySize << " by default)" << std::endl;
-    std::cout << "    " << QLearningArguments::ReplayBatchSize          << " size      - replay batch size (optional, " << DefaultReplayBatchSize << " by default)" << std::endl << std::endl;
+    std::cout << "    " << QLearningArguments::ReplayBatchSizeArgument  << " size      - replay batch size (optional, " << DefaultReplayBatchSize << " by default)" << std::endl << std::endl;
 
     std::cout << "webapp mode - launches 2048 web application" << std::endl;
     std::cout << "    -p port      - specify port to deploy app to (" << DefaultServerPort << " by default)" << std::endl;

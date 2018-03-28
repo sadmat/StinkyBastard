@@ -12,6 +12,7 @@
 #include <GameCore.h>
 #include <doublefann.h>
 #include <fann_cpp.h>
+#include "arguments/QLearningArguments.h"
 
 namespace nn2048
 {
@@ -21,13 +22,7 @@ class QLearningState;
 class QLearningTeacher: public Application
 {
 public:
-    QLearningTeacher(const std::string &networkFileName,
-                     unsigned maxAge,
-                     unsigned targetScore,
-                     double gamma,
-                     double learningRate,
-                     double momentum,
-                     double epsilon);
+    QLearningTeacher(std::unique_ptr<QLearningArguments> arguments);
 
     int run();
     void onSigInt();
@@ -42,13 +37,7 @@ protected:
     void printStats(unsigned epoch, unsigned score, unsigned steps, unsigned illegalSteps, double loss, double currentLoss) const;
 
 private:
-    std::string _networkFileName;
-    unsigned _maxAge;
-    unsigned _targetScore;
-    double _gamma;
-    double _learningRate;
-    double _momentum;
-    double _epsilon;
+    std::unique_ptr<QLearningArguments> _arguments;
     bool _sigIntCaught;
     std::unique_ptr<FANN::neural_net> _network;
     std::unique_ptr<Game2048Core::GameCore> _game;

@@ -2,11 +2,12 @@
 #define QLEARNINGARGUMENTS_H
 
 #include <string>
+#include "Arguments.h"
 #include "../utils/Defaults.h"
 
 namespace nn2048 {
 
-class QLearningArguments
+class QLearningArguments : public Arguments
 {
 public:
     std::string networkFileName = "";
@@ -27,7 +28,7 @@ public:
     const static std::string MomentumFactorArgument;
     const static std::string EpsilonFactorArgument;
     const static std::string ReplayMemorySizeArgument;
-    const static std::string ReplayBatchSize;
+    const static std::string ReplayBatchSizeArgument;
 };
 
 }

@@ -10,6 +10,6 @@ const std::string QLearningArguments::LearningRateArgument = "-l";
 const std::string QLearningArguments::MomentumFactorArgument = "-m";
 const std::string QLearningArguments::EpsilonFactorArgument = "-e";
 const std::string QLearningArguments::ReplayMemorySizeArgument = "-r";
-const std::string QLearningArguments::ReplayBatchSize = "-b";
+const std::string QLearningArguments::ReplayBatchSizeArgument = "-b";
 
 }
