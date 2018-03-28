@@ -187,17 +187,16 @@ void QLearningTeacher::serializeNetwork() const
 
 double QLearningTeacher::computeReward(bool moveFailed, unsigned deltaScore) const
 {
-    if (moveFailed)
+    if (_game->isGameOver())
+        return -2.0;
+    else if (moveFailed)
         return -1.0;
-    else if (_game->isGameOver())
-        return -3.0;
     else if (deltaScore > 0)
     {
-//        auto maxTileValue = BoardSignalConverter::maxTileValue(_game->board());
-//        return (static_cast<double>(deltaScore) / maxTileValue) * 2.0;
-        return std::log2(deltaScore);
+        auto maxTileValue = BoardSignalConverter::maxTileValue(_game->board());
+        return std::log2(deltaScore) / std::log2(maxTileValue) + 1.0;
     }
-    return -0.1;
+    return 0.0;
 }
 
 std::function<bool()> QLearningTeacher::learningCondition(const unsigned &age, const unsigned &score) const
