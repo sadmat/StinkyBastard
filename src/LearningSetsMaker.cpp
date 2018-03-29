@@ -11,10 +11,8 @@ namespace nn2048
 
 using namespace boost;
 
-LearningSetsMaker::LearningSetsMaker(const std::string &recordsDirectory, const std::string &outputFileName, unsigned minScore):
-    _recordsDirectory(recordsDirectory),
-    _outputFileName(outputFileName),
-    _minScore(minScore)
+LearningSetsMaker::LearningSetsMaker(std::unique_ptr<LearningSetsMakerArguments> arguments):
+    _arguments(std::move(arguments))
 {}
 
 int LearningSetsMaker::run()
@@ -25,7 +23,7 @@ int LearningSetsMaker::run()
         auto jsons = jsonFileNames();
         if (jsons.size() == 0)
         {
-            std::cerr << "No jsons found in " << _recordsDirectory << std::endl;
+            std::cerr << "No jsons found in " << _arguments->recordsDirectory << std::endl;
             return 0;
         }
 
@@ -52,14 +50,14 @@ int LearningSetsMaker::run()
 
 std::vector<std::string> LearningSetsMaker::jsonFileNames() const
 {
-    if (!filesystem::is_directory(_recordsDirectory))
+    if (!filesystem::is_directory(_arguments->recordsDirectory))
     {
-        std::string message = _recordsDirectory + " is not a directory";
+        std::string message = _arguments->recordsDirectory + " is not a directory";
         throw std::invalid_argument(message);
     }
 
     std::vector<std::string> jsons;
-    for (const filesystem::directory_entry &entry: filesystem::directory_iterator(_recordsDirectory))
+    for (const filesystem::directory_entry &entry: filesystem::directory_iterator(_arguments->recordsDirectory))
     {
         if (entry.path().extension() == ".json")
             jsons.push_back(entry.path().string());
@@ -80,9 +78,9 @@ MoveStatsMap LearningSetsMaker::moveStatsForJsons(const std::vector<std::string>
             std::cout << "Parsing " << json << "... ";
             auto moves = Game2048Core::GameHistorySerializer::deserialize(json, &highscore);
             std::cout << "ok" << std::endl;
-            if (highscore < _minScore)
+            if (highscore < _arguments->minScore)
             {
-                std::cout << "Highscore " << highscore << " < " << _minScore << " - rejecting" << std::endl;
+                std::cout << "Highscore " << highscore << " < " << _arguments->minScore << " - rejecting" << std::endl;
                 continue;
             }
 
@@ -115,13 +113,13 @@ unsigned LearningSetsMaker::processMoves(std::list<Game2048Core::Move> &moves, M
             {
                 MoveStats stats;
                 for (auto &stat: stats) stat = 0;
-                stats[(size_t)move.second] = 1;
+                stats[static_cast<size_t>(move.second)] = 1;
                 map[normalized] = stats;
             }
         }
         else
         {
-            map[normalized][(size_t)move.second]++;
+            map[normalized][static_cast<size_t>(move.second)]++;
             ++duplicates;
         }
     }
@@ -202,10 +200,10 @@ void LearningSetsMaker::serializeLearningSets(const std::vector<NeuralNetwork::L
     {
         std::cout << "Serializing... ";
         std::cout.flush();
-        std::ofstream file(_outputFileName);
+        std::ofstream file(_arguments->outputFileName);
         if (!file.is_open())
         {
-            std::string message = "Could not open file: " + _outputFileName;
+            std::string message = "Could not open file: " + _arguments->outputFileName;
             throw std::runtime_error(message);
         }
         NeuralNetwork::LearningSetSerializer::serialize(learningSets, file);
@@ -214,7 +212,7 @@ void LearningSetsMaker::serializeLearningSets(const std::vector<NeuralNetwork::L
     }
     catch (std::exception &ex)
     {
-        std::cout << std::endl;
+        std::cout << "Exception during serialization" << ex.what() << std::endl;
         throw;
     }
 }

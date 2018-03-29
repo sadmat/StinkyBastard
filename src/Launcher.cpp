@@ -11,6 +11,7 @@
 #include "QLearningTeacher.h"
 #include "WebAppLauncher.h"
 #include "utils/Defaults.h"
+#include "arguments/LearningSetsMakerArgumentsParser.h"
 #include "arguments/QLearningArgumentsParser.h"
 
 namespace nn2048
@@ -64,80 +65,12 @@ std::unique_ptr<Application> Launcher::helperApplication(const std::string &exec
 
 std::unique_ptr<Application> Launcher::setsMakerApplication(int argc, char *argv[])
 {
-    std::string recordsDirectory;
-    std::string outputFileName;
-    unsigned minScore = 0;
-
-    for (unsigned i = 2; i < argc; ++i)
-    {
-        // Recordings directory
-        if (strcmp("-d", argv[i]) == 0)
-        {
-            if (!recordsDirectory.empty())
-            {
-                std::cerr << "Recordings directory has to be specified once only" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Recordings directory argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            recordsDirectory = argv[++i];
-        }
-        // Output file name
-        else if (strcmp("-o", argv[i]) == 0)
-        {
-            if (!outputFileName.empty())
-            {
-                std::cerr << "Output file name has to be specified once only" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Output file name argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            outputFileName = argv[++i];
-        }
-        // Min score
-        else if (strcmp("-s", argv[i]) == 0)
-        {
-            if (argc <= i + 1)
-            {
-                std::cerr << "Score arguments requires parameter" << std::endl;
-                return nullptr;
-            }
-            try
-            {
-                int score = std::stoi(argv[++i]);
-                if (score < 0)
-                    throw std::invalid_argument("negative score");
-                minScore = score;
-            }
-            catch (const std::invalid_argument &ex)
-            {
-                std::cerr << "Score argument has to be positive integer" << std::endl;
-                return nullptr;
-            }
-        }
-        else
-        {
-            std::cerr << "Unknown argument: " << argv[i] << std::endl;
-            return nullptr;
-        }
-    }
-    if (recordsDirectory.empty())
-    {
-        std::cerr << "Recordings directory not specified" << std::endl;
+    auto parser = LearningSetsMakerArgumentsParser(argc, argv);
+    auto arguments = parser.parsedArguments();
+    if (!arguments)
         return nullptr;
-    }
-    if (outputFileName.empty())
-    {
-        std::cerr << "Output file name not specified" << std::endl;
-        return nullptr;
-    }
-    return std::make_unique<LearningSetsMaker>(recordsDirectory, outputFileName, minScore);
+    auto pointer = dynamic_cast<LearningSetsMakerArguments *>(arguments.release());
+    return std::make_unique<LearningSetsMaker>(std::unique_ptr<LearningSetsMakerArguments>(pointer));
 }
 
 std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char *argv[])

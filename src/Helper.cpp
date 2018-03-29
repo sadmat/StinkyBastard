@@ -1,6 +1,7 @@
 #include "Helper.h"
 #include <iostream>
 #include "utils/Defaults.h"
+#include "arguments/LearningSetsMakerArguments.h"
 #include "arguments/QLearningArguments.h"
 
 namespace nn2048
@@ -10,9 +11,9 @@ void Helper::showHelp() const
 {
     std::cout << "Usage: " << _execName << " [mode] [mode arguments]" << std::endl << std::endl;
     std::cout << "convert mode - converts games recorded by Bastard into learning set" << std::endl;
-    std::cout << "    -d directory - recordings directory" << std::endl;
-    std::cout << "    -o output    - output file name" << std::endl;
-    std::cout << "    -s score     - minimum score (optional)" << std::endl << std::endl;
+    std::cout << "    " << LearningSetsMakerArguments::RecordsDirectoryArgument << " directory - recordings directory" << std::endl;
+    std::cout << "    " << LearningSetsMakerArguments::OutputFileNameArgument   << " output    - output file name" << std::endl;
+    std::cout << "    " << LearningSetsMakerArguments::MinScoreArgument         << " score     - minimum score (optional)" << std::endl << std::endl;
 
     std::cout << "create mode - creates new neural network with random weights" << std::endl;
     std::cout << "    -s structure - network structure (eg. 2,3,4 - 2 inputs, 3 hidden" << std::endl;

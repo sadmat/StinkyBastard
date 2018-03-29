@@ -7,18 +7,19 @@
 #include <map>
 #include <GameHistorySerializer.h>
 #include <LearningSetSerializer.h>
+#include "arguments/LearningSetsMakerArguments.h"
 
 namespace nn2048
 {
 
-typedef std::array<unsigned, (size_t)Game2048Core::Direction::Total> MoveStats;
+typedef std::array<unsigned, static_cast<size_t>(Game2048Core::Direction::Total)> MoveStats;
 typedef std::vector<std::vector<double>> NormalizedBoardState;
 typedef std::map<NormalizedBoardState, MoveStats> MoveStatsMap;
 
 class LearningSetsMaker: public Application
 {
 public:
-    LearningSetsMaker(const std::string &recordsDirectory, const std::string &outputFileName, unsigned minScore = 0);
+    LearningSetsMaker(std::unique_ptr<LearningSetsMakerArguments> arguments);
 
     int run();
 
@@ -32,9 +33,7 @@ protected:
     void serializeLearningSets(const std::vector<NeuralNetwork::LearningSet> &learningSets) const;
 
 private:
-    std::string _recordsDirectory;
-    std::string _outputFileName;
-    unsigned _minScore;
+    std::unique_ptr<LearningSetsMakerArguments> _arguments;
 };
 
 }
