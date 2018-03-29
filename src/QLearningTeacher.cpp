@@ -120,7 +120,7 @@ void QLearningTeacher::performLearning() const
 
         // Store replay
         if (!moveFailed || prevDirection != pickedDirection || !prevMoveFailed)
-            replayMemory.addState(currentStateSignal, pickedDirection, reward, _game->isGameOver());
+            replayMemory.addState(currentStateSignal, pickedDirection, reward, moveFailed, _game->isGameOver());
 
         // Get training batch
         unsigned batchSize = _arguments->replayBatchSize;
@@ -156,8 +156,9 @@ double QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> 
 
         double targetValue = state->receivedReward();
         unsigned targetOutputIndex = static_cast<unsigned>(state->takenAction());
-        if (state->isInTerminalState() == false && state->nextState() != nullptr)
-        {
+        if (state->hasMoveFailed()) {
+            targetValue += _arguments->gamma * outputs[targetOutputIndex];
+        } else if (state->isInTerminalState() == false && state->nextState() != nullptr) {
             auto nextStateInputs = const_cast<double *>(&(state->nextState()->boardSignal()[0]));
             auto nextStateOutputs = _network->run(nextStateInputs);
             double nextActionQValue = nextStateOutputs[0];

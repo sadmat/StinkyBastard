@@ -16,6 +16,7 @@ public:
     void addState(std::vector<double> boardSignal,
                   Game2048Core::Direction takenAction,
                   double reward,
+                  bool moveFailed,
                   bool isInTerminalState = false);
 
     std::vector<QLearningState const *> sampleBatch(unsigned size);

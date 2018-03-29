@@ -6,10 +6,12 @@ namespace nn2048
 QLearningState::QLearningState(const std::vector<double> &boardSignal,
                                Game2048Core::Direction takenAction,
                                double receivedReward,
+                               bool moveFailed,
                                bool isInTerminalState) :
     _boardSignal(boardSignal),
     _action(takenAction),
     _reward(receivedReward),
+    _moveFailed(moveFailed),
     _terminalState(isInTerminalState)
 {
 }
