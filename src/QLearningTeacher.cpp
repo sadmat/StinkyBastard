@@ -16,28 +16,15 @@ namespace nn2048
 
 const unsigned gameBoardSideLength = 4;
 
-QLearningTeacher::QLearningTeacher(const std::string &networkFileName,
-                                   unsigned maxAge,
-                                   unsigned targetScore,
-                                   double gamma,
-                                   double learningRate,
-                                   double momentum,
-                                   double epsilon)
-    :
-      _networkFileName(networkFileName),
-      _maxAge(maxAge),
-      _targetScore(targetScore),
-      _gamma(gamma),
-      _learningRate(learningRate),
-      _momentum(momentum),
-      _epsilon(epsilon),
+QLearningTeacher::QLearningTeacher(std::unique_ptr<QLearningArguments> arguments) :
+      _arguments(std::move(arguments)),
       _network(nullptr),
       _game(std::make_unique<Game2048Core::GameCore>(gameBoardSideLength))
 {}
 
 int QLearningTeacher::run()
 {
-    if (boost::filesystem::exists(_networkFileName))
+    if (boost::filesystem::exists(_arguments->networkFileName))
         _network = loadNeuralNetwork();
     else
     {
@@ -64,7 +51,7 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::loadNeuralNetwork() const
         std::cout << "Loading neural network... ";
         std::cout.flush();
 
-        auto network = std::make_unique<FANN::neural_net>(_networkFileName);
+        auto network = std::make_unique<FANN::neural_net>(_arguments->networkFileName);
 
         std::cout << "ok" << std::endl;
         return network;
@@ -79,7 +66,7 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::loadNeuralNetwork() const
 
 void QLearningTeacher::performLearning() const
 {
-    ReplayMemory replayMemory(20000);
+    ReplayMemory replayMemory(_arguments->replayMemorySize);
     unsigned age = 0;
     unsigned agentStepCount = 0;
     unsigned illegalMoves = 0;
@@ -89,8 +76,8 @@ void QLearningTeacher::performLearning() const
     Game2048Core::Direction prevDirection = Game2048Core::Direction::None;
     auto shouldContinueLearning = learningCondition(age, _game->state().score);
 
-    _network->set_learning_rate(static_cast<float>(_learningRate));
-    _network->set_learning_momentum(static_cast<float>(_momentum));
+    _network->set_learning_rate(static_cast<float>(_arguments->learningRate));
+    _network->set_learning_momentum(static_cast<float>(_arguments->momentumFactor));
 
     std::default_random_engine randomEngine;
     std::uniform_real_distribution<double> randomDistrib(0, 1);
@@ -112,7 +99,7 @@ void QLearningTeacher::performLearning() const
 
         // Pick action
         Game2048Core::Direction pickedDirection;
-        if (randomDistrib(randomEngine) <= _epsilon) {
+        if (randomDistrib(randomEngine) <= _arguments->epsilonFactor) {
             // Random
             int totalDirections = static_cast<unsigned>(Game2048Core::Direction::Total);
             pickedDirection = static_cast<Game2048Core::Direction>(rand() % totalDirections);
@@ -136,7 +123,7 @@ void QLearningTeacher::performLearning() const
             replayMemory.addState(currentStateSignal, pickedDirection, reward, _game->isGameOver());
 
         // Get training batch
-        unsigned batchSize = 1000;
+        unsigned batchSize = _arguments->replayBatchSize;
         if (batchSize > replayMemory.currentSize())
             batchSize = static_cast<unsigned>(replayMemory.currentSize());
         auto trainingBatch = replayMemory.sampleBatch(batchSize);
@@ -178,7 +165,7 @@ double QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> 
                 if (nextStateOutputs[j] > nextActionQValue)
                     nextActionQValue = nextStateOutputs[j];
 
-            targetValue += _gamma * nextActionQValue;
+            targetValue += _arguments->gamma * nextActionQValue;
         }
         double loss = (targetValue - outputs[targetOutputIndex]);
         loss *= loss;
@@ -194,45 +181,44 @@ double QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> 
 void QLearningTeacher::serializeNetwork() const
 {
     std::cout << "Serializing network... ";
-    _network->save(_networkFileName);
+    _network->save(_arguments->networkFileName);
     std::cout << "ok" << std::endl;
 }
 
 double QLearningTeacher::computeReward(bool moveFailed, unsigned deltaScore) const
 {
-    if (moveFailed)
+    if (_game->isGameOver())
+        return -2.0;
+    else if (moveFailed)
         return -1.0;
-    else if (_game->isGameOver())
-        return -3.0;
     else if (deltaScore > 0)
     {
-//        auto maxTileValue = BoardSignalConverter::maxTileValue(_game->board());
-//        return (static_cast<double>(deltaScore) / maxTileValue) * 2.0;
-        return std::log2(deltaScore);
+        auto maxTileValue = BoardSignalConverter::maxTileValue(_game->board());
+        return std::log2(deltaScore) / std::log2(maxTileValue) + 1.0;
     }
-    return -0.1;
+    return 0.0;
 }
 
 std::function<bool()> QLearningTeacher::learningCondition(const unsigned &age, const unsigned &score) const
 {
-    if (_maxAge > 0 && _targetScore > 0)
+    if (_arguments->maxAge > 0 && _arguments->targetScore > 0)
     {
         auto c = [&age, &score, this] () -> bool {
-            return age < this->_maxAge && score < this->_targetScore;
+            return age < this->_arguments->maxAge && score < this->_arguments->targetScore;
         };
         return std::bind(c);
     }
-    else if (_maxAge > 0)
+    else if (_arguments->maxAge > 0)
     {
         auto c = [&age, this] () -> bool {
-            return age < this->_maxAge;
+            return age < this->_arguments->maxAge;
         };
         return std::bind(c);
     }
-    else if (_targetScore > 0)
+    else if (_arguments->targetScore > 0)
     {
         auto c = [&score, this] () -> bool {
-            return score < _targetScore;
+            return score < _arguments->targetScore;
         };
         return std::bind(c);
     }

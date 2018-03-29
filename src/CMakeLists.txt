@@ -16,6 +16,8 @@ find_package(Boost REQUIRED
 
 set(SOURCES
     main.cpp
+    arguments/Arguments.cpp
+    arguments/ArgumentParser.cpp
     utils/BoardSignalConverter.cpp
     web/GameBoardWidget.cpp
     web/GameController.cpp
@@ -29,6 +31,8 @@ set(SOURCES
     utils/NetworkOutputConverter.cpp
     NetworkTeacher.cpp
     web/NeuralNetworkGameController.cpp
+    arguments/QLearningArguments.cpp
+    arguments/QLearningArgumentsParser.cpp
     utils/QLearningState.cpp
     QLearningTeacher.cpp
     utils/ReplayMemory.cpp
@@ -40,6 +44,8 @@ set(SOURCES
             
 set(HEADERS
     Application.h
+    arguments/Arguments.h
+    arguments/ArgumentParser.h
     utils/BoardSignalConverter.h
     utils/Defaults.h
     web/GameBoardWidget.h
@@ -54,6 +60,8 @@ set(HEADERS
     utils/NetworkOutputConverter.h
     NetworkTeacher.h
     web/NeuralNetworkGameController.h
+    arguments/QLearningArguments.h
+    arguments/QLearningArgumentsParser.h
     utils/QLearningState.h
     QLearningTeacher.h
     utils/ReplayMemory.h
