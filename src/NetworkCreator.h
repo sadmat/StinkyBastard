@@ -8,6 +8,7 @@
 #include <Network.h>
 #include <doublefann.h>
 #include <fann_cpp.h>
+#include "arguments/NetworkCreatorArguments.h"
 
 namespace nn2048
 {
@@ -15,10 +16,7 @@ namespace nn2048
 class NetworkCreator: public Application
 {
 public:
-    NetworkCreator(const std::vector<unsigned> &structure,
-                   const std::string &fileName,
-                   double distributionAmplitude,
-                   bool fannNetwork = false);
+    NetworkCreator(std::unique_ptr<NetworkCreatorArguments> arguments);
 
     int run();
 
@@ -33,10 +31,7 @@ protected:
     void serializeFann(FANN::neural_net *network) const;
 
 private:
-    std::vector<unsigned> _structure;
-    std::string _fileName;
-    double _distributionAmplitude;
-    bool _fannNetwork;
+    std::unique_ptr<NetworkCreatorArguments> _arguments;
 };
 
 }

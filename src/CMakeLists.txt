@@ -26,7 +26,11 @@ set(SOURCES
     Helper.cpp
     web/KeyboardGameController.cpp
     Launcher.cpp
+    arguments/LearningSetsMakerArguments.cpp
+    arguments/LearningSetsMakerArgumentsParser.cpp
     LearningSetsMaker.cpp
+    arguments/NetworkCreatorArguments.cpp
+    arguments/NetworkCreatorArgumentsParser.cpp
     NetworkCreator.cpp
     utils/NetworkOutputConverter.cpp
     NetworkTeacher.cpp
@@ -55,7 +59,11 @@ set(HEADERS
     Helper.h
     web/KeyboardGameController.h
     Launcher.h
+    arguments/LearningSetsMakerArguments.h
+    arguments/LearningSetsMakerArgumentsParser.h
     LearningSetsMaker.h
+    arguments/NetworkCreatorArguments.h
+    arguments/NetworkCreatorArgumentsParser.h
     NetworkCreator.h
     utils/NetworkOutputConverter.h
     NetworkTeacher.h

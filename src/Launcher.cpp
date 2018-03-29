@@ -2,7 +2,6 @@
 #include <map>
 #include <iostream>
 #include <cstring>
-#include <sstream>
 #include <cmath>
 #include "Helper.h"
 #include "LearningSetsMaker.h"
@@ -11,6 +10,8 @@
 #include "QLearningTeacher.h"
 #include "WebAppLauncher.h"
 #include "utils/Defaults.h"
+#include "arguments/LearningSetsMakerArgumentsParser.h"
+#include "arguments/NetworkCreatorArgumentsParser.h"
 #include "arguments/QLearningArgumentsParser.h"
 
 namespace nn2048
@@ -64,183 +65,22 @@ std::unique_ptr<Application> Launcher::helperApplication(const std::string &exec
 
 std::unique_ptr<Application> Launcher::setsMakerApplication(int argc, char *argv[])
 {
-    std::string recordsDirectory;
-    std::string outputFileName;
-    unsigned minScore = 0;
-
-    for (unsigned i = 2; i < argc; ++i)
-    {
-        // Recordings directory
-        if (strcmp("-d", argv[i]) == 0)
-        {
-            if (!recordsDirectory.empty())
-            {
-                std::cerr << "Recordings directory has to be specified once only" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Recordings directory argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            recordsDirectory = argv[++i];
-        }
-        // Output file name
-        else if (strcmp("-o", argv[i]) == 0)
-        {
-            if (!outputFileName.empty())
-            {
-                std::cerr << "Output file name has to be specified once only" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Output file name argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            outputFileName = argv[++i];
-        }
-        // Min score
-        else if (strcmp("-s", argv[i]) == 0)
-        {
-            if (argc <= i + 1)
-            {
-                std::cerr << "Score arguments requires parameter" << std::endl;
-                return nullptr;
-            }
-            try
-            {
-                int score = std::stoi(argv[++i]);
-                if (score < 0)
-                    throw std::invalid_argument("negative score");
-                minScore = score;
-            }
-            catch (const std::invalid_argument &ex)
-            {
-                std::cerr << "Score argument has to be positive integer" << std::endl;
-                return nullptr;
-            }
-        }
-        else
-        {
-            std::cerr << "Unknown argument: " << argv[i] << std::endl;
-            return nullptr;
-        }
-    }
-    if (recordsDirectory.empty())
-    {
-        std::cerr << "Recordings directory not specified" << std::endl;
+    auto parser = LearningSetsMakerArgumentsParser(argc, argv);
+    auto arguments = parser.parsedArguments();
+    if (!arguments)
         return nullptr;
-    }
-    if (outputFileName.empty())
-    {
-        std::cerr << "Output file name not specified" << std::endl;
-        return nullptr;
-    }
-    return std::make_unique<LearningSetsMaker>(recordsDirectory, outputFileName, minScore);
+    auto pointer = dynamic_cast<LearningSetsMakerArguments *>(arguments.release());
+    return std::make_unique<LearningSetsMaker>(std::unique_ptr<LearningSetsMakerArguments>(pointer));
 }
 
 std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char *argv[])
 {
-    std::string structureString;
-    std::string fileName;
-    bool fannNetwork = false;
-    double distributionAmplitude = DefaultWeightDistribution;
-
-    for (unsigned i = 2; i < argc; ++i)
-    {
-        if (strcmp("-s", argv[i]) == 0)
-        {
-            if (!structureString.empty())
-            {
-                std::cerr << "Structure has to be specified once only" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Structure argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            structureString = argv[++i];
-        }
-        else if (strcmp("-o", argv[i]) == 0)
-        {
-            if (!fileName.empty())
-            {
-                std::cerr << "Output file name has to be specified once only" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Output file name argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            fileName = argv[++i];
-        }
-        else if (strcmp("-d", argv[i]) == 0)
-        {
-            if (argc <= i + 1)
-            {
-                std::cerr << "Weight distribution amplitude argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            try
-            {
-                distributionAmplitude = std::stod(argv[++i]);
-                if (distributionAmplitude <= 0.0)
-                    throw std::invalid_argument("Weight distribution amplitude has to be positive real value");
-            }
-            catch (std::invalid_argument &exception)
-            {
-                std::cerr << "Weight distribution amplitude parsing failed: " << exception.what() << std::endl;
-                return nullptr;
-            }
-        }
-        else if (strcmp("-f", argv[i]) == 0)
-        {
-            if (fannNetwork)
-            {
-                std::cerr << "FANN switch already set" << std::endl;
-                return nullptr;
-            }
-            else fannNetwork = true;
-        }
-        else
-        {
-            std::cerr << "Unknown parameter: " << argv[i];
-            return nullptr;
-        }
-    }
-
-    if (structureString.empty())
-    {
-        std::cerr << "Structure argument not set" << std::endl;
+    auto parser = NetworkCreatorArgumentsParser(argc, argv);
+    auto arguments = parser.parsedArguments();
+    if (!arguments)
         return nullptr;
-    }
-    if (fileName.empty())
-    {
-        std::cerr << "Output file name argument not set" << std::endl;
-        return nullptr;
-    }
-
-    auto structureStringValues = splitString(structureString, ',');
-    std::vector<unsigned> structure;
-    structure.reserve(structureStringValues.size());
-    for (auto &stringValue: structureStringValues)
-    {
-        unsigned value;
-        try
-        {
-            value = std::stoi(stringValue);
-        }
-        catch (std::invalid_argument &exception)
-        {
-            std::cerr << "Invalid structure value at: " << stringValue << std::endl;
-            return nullptr;
-        }
-        structure.push_back(value);
-    }
-    return std::make_unique<NetworkCreator>(structure, fileName, distributionAmplitude, fannNetwork);
+    auto pointer = dynamic_cast<NetworkCreatorArguments *>(arguments.release());
+    return std::make_unique<NetworkCreator>(std::unique_ptr<NetworkCreatorArguments>(pointer));
 }
 
 std::unique_ptr<Application> Launcher::networkTeacherApplication(int argc, char *argv[])
@@ -586,18 +426,6 @@ std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
             appRootDirectory,
             neuralNetworkFileName,
             highscoreThreshold);
-}
-
-std::vector<std::string> Launcher::splitString(const std::string &string, char delimiter)
-{
-    std::stringstream stream(string);
-    std::string item;
-    std::vector<std::string> elements;
-    while (std::getline(stream, item, delimiter))
-    {
-        elements.push_back(std::move(item));
-    }
-    return elements;
 }
 
 }

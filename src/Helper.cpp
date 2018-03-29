@@ -1,6 +1,8 @@
 #include "Helper.h"
 #include <iostream>
 #include "utils/Defaults.h"
+#include "arguments/LearningSetsMakerArguments.h"
+#include "arguments/NetworkCreatorArguments.h"
 #include "arguments/QLearningArguments.h"
 
 namespace nn2048
@@ -10,16 +12,16 @@ void Helper::showHelp() const
 {
     std::cout << "Usage: " << _execName << " [mode] [mode arguments]" << std::endl << std::endl;
     std::cout << "convert mode - converts games recorded by Bastard into learning set" << std::endl;
-    std::cout << "    -d directory - recordings directory" << std::endl;
-    std::cout << "    -o output    - output file name" << std::endl;
-    std::cout << "    -s score     - minimum score (optional)" << std::endl << std::endl;
+    std::cout << "    " << LearningSetsMakerArguments::RecordsDirectoryArgument << " directory - recordings directory" << std::endl;
+    std::cout << "    " << LearningSetsMakerArguments::OutputFileNameArgument   << " output    - output file name" << std::endl;
+    std::cout << "    " << LearningSetsMakerArguments::MinScoreArgument         << " score     - minimum score (optional)" << std::endl << std::endl;
 
     std::cout << "create mode - creates new neural network with random weights" << std::endl;
-    std::cout << "    -s structure - network structure (eg. 2,3,4 - 2 inputs, 3 hidden" << std::endl;
+    std::cout << "    " << NetworkCreatorArguments::NetworkStructureArgument   << " structure - network structure (eg. 2,3,4 - 2 inputs, 3 hidden" << std::endl;
     std::cout << "                   neurons, 4 outputs)" << std::endl;
-    std::cout << "    -o output    - output file name" << std::endl;
-    std::cout << "    -d distrib   - weight distribution amplitude (optional, " << DefaultWeightDistribution << " by default)" << std::endl;
-    std::cout << "    -f           - creates FANN network instead of standard json one" << std::endl << std::endl;
+    std::cout << "    " << NetworkCreatorArguments::NetworkFileNameArgument    << " output    - output file name" << std::endl;
+    std::cout << "    " << NetworkCreatorArguments::WeightDistributionArgument << " distrib   - weight distribution amplitude (optional, " << DefaultWeightDistribution << " by default)" << std::endl;
+    std::cout << "    " << NetworkCreatorArguments::CreateFannNetworkArgument  << "           - creates FANN network instead of standard json one" << std::endl << std::endl;
 
     std::cout << "learn mode - performs backpropagation algorythm" << std::endl;
     std::cout << "    -n file      - neural network file name" << std::endl;

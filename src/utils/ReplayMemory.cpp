@@ -21,6 +21,7 @@ ReplayMemory::ReplayMemory(unsigned size):
 void ReplayMemory::addState(std::vector<double> boardSignal,
                             Game2048Core::Direction takenAction,
                             double reward,
+                            bool moveFailed,
                             bool isInTerminalState)
 {
     if (this->isFull())
@@ -28,6 +29,7 @@ void ReplayMemory::addState(std::vector<double> boardSignal,
     auto newState = std::make_unique<QLearningState>(boardSignal,
                                                      takenAction,
                                                      reward,
+                                                     moveFailed,
                                                      isInTerminalState);
     _memory.push_back(std::move(newState));
 }
@@ -54,6 +56,8 @@ std::vector<const QLearningState *> ReplayMemory::sampleBatch(unsigned size)
         auto state = _memory[index].get();
         if (state->isInTerminalState() == false && index < _memory.size() - 1)
             state->setNextState(_memory[index + 1].get());
+        else if (state->hasMoveFailed())
+            state->setNextState(state);
         else
             state->setNextState(nullptr);
         batch.push_back(state);
