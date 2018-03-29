@@ -69,6 +69,7 @@ add_executable(nn2048 ${SOURCES} ${HEADERS})
 target_link_libraries(nn2048
     Game2048Core
     NeuralNetwork
+    -lz
     ${WT_LIBRARY}
     ${WTHTTP_LIBRARY}
     ${Boost_LIBRARIES}
