@@ -38,6 +38,26 @@ double BoardSignalConverter::maxTileValue(const Game2048Core::BoardState &board)
     return value;
 }
 
+std::vector<double> BoardSignalConverter::boardToBitSignal(const Game2048Core::BoardState &board)
+{
+    size_t numberOfTiles = 16;
+    size_t numberOfPossibleValues = 16;
+    auto signal = std::vector<double>(numberOfPossibleValues * numberOfTiles);
+    size_t index = 0;
+
+    for (auto &row: board) {
+        for (auto &tile: row) {
+            if (tile.value() > 0) {
+                auto offset = static_cast<size_t>(std::log2(tile.value()));
+                signal[index + offset - 1] = 1.0;
+            }
+            index += numberOfPossibleValues;
+        }
+    }
+
+    return signal;
+}
+
 }
 
 

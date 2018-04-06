@@ -95,7 +95,7 @@ void QLearningTeacher::performLearning() const
         else if (agentStepCount > 0 && agentStepCount % 1000 == 0)
             printStats(age, _game->score(), agentStepCount, illegalMoves, lossSum / age, currentLossSum / agentStepCount);
 
-        auto currentStateSignal = BoardSignalConverter::boardToSignal(_game->board());
+        auto currentStateSignal = BoardSignalConverter::boardToBitSignal(_game->board());
 
         // Pick action
         Game2048Core::Direction pickedDirection;
@@ -116,7 +116,7 @@ void QLearningTeacher::performLearning() const
         // Carry out action
         bool moveFailed = !_game->tryMove(pickedDirection);
         double reward = computeReward(moveFailed, _game->score() - prevScore);
-        auto newStateSignal = BoardSignalConverter::boardToSignal(_game->board());
+        auto newStateSignal = BoardSignalConverter::boardToBitSignal(_game->board());
 
         // Store replay
         if (!moveFailed || prevDirection != pickedDirection || !prevMoveFailed)

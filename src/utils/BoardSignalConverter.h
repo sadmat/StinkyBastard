@@ -10,6 +10,7 @@ class BoardSignalConverter
 {
 public:
     static std::vector<double> boardToSignal(const Game2048Core::BoardState &board);
+    static std::vector<double> boardToBitSignal(const Game2048Core::BoardState &board);
 
     static double maxTileValue(const Game2048Core::BoardState &board);
 };
