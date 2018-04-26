@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <GameCore.h>
+#include <json/json.h>
 
 namespace nn2048
 {
@@ -15,6 +16,7 @@ public:
                    double receivedReward,
                    bool moveFailed,
                    bool isInTerminalState = false);
+    QLearningState(const Json::Value &json);
     QLearningState(const QLearningState &) = delete;
     QLearningState(QLearningState &&other);
     ~QLearningState() = default;
@@ -30,6 +32,15 @@ public:
 
     QLearningState &operator = (const QLearningState &) = delete;
     QLearningState &operator = (QLearningState &&other);
+
+    Json::Value toJsonValue() const;
+
+protected:
+    void deserializeBoardSignal(const Json::Value &json);
+    void deserializeTakenAction(const Json::Value &json);
+    void deserializeReinforcement(const Json::Value &json);
+    void deserializeMoveFailedValue(const Json::Value &json);
+    void deserializeTerminalStateValue(const Json::Value &json);
 
 private:
     std::vector<double> _boardSignal;
