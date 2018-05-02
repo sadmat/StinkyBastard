@@ -43,6 +43,8 @@ set(SOURCES
     web/ScoreWidget.cpp
     utils/TilePositionComparer.cpp
     web/WebApplication.cpp
+    arguments/WebAppArguments.cpp
+    arguments/WebAppArgumentsParser.cpp
     WebAppLauncher.cpp
 )
             
@@ -76,6 +78,8 @@ set(HEADERS
     web/ScoreWidget.h
     utils/TilePositionComparer.h
     web/WebApplication.h
+    arguments/WebAppArguments.h
+    arguments/WebAppArgumentsParser.h
     WebAppLauncher.h
 )
             

@@ -13,6 +13,7 @@
 #include "arguments/LearningSetsMakerArgumentsParser.h"
 #include "arguments/NetworkCreatorArgumentsParser.h"
 #include "arguments/QLearningArgumentsParser.h"
+#include "arguments/WebAppArgumentsParser.h"
 
 namespace nn2048
 {
@@ -243,189 +244,12 @@ std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char
 
 std::unique_ptr<Application> Launcher::webApplication(int argc, char *argv[])
 {
-    unsigned short port = DefaultServerPort;
-    std::string portString;
-    std::string serverName;
-    std::string documentRoot;
-    std::string resourcesDirectory;
-    std::string appRootDirectory;
-    std::string neuralNetworkFileName;
-    unsigned long highscoreThreshold = DefaultHighscoreToRecordThreshold;
-    std::string highscoreThresholdString;
-
-    for (int i = 2; i < argc; ++i)
-    {
-        // Port
-        if (!strcmp("-p", argv[i]))
-        {
-            if (!portString.empty())
-            {
-                std::cerr << "Port number cannot be specified twice" << std::endl;
-                return nullptr;
-            }
-            else if (argc <= i + 1)
-            {
-                std::cerr << "Port number argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            portString = argv[++i];
-        }
-        // Server name
-        else if (!strcmp("-s", argv[i]))
-        {
-            if (!serverName.empty())
-            {
-                std::cerr << "Server name cannot be set twice" << std::endl;
-                return nullptr;
-            }
-            else if (argc <= i + 1)
-            {
-                std::cerr << "Server name argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            serverName = argv[++i];
-        }
-        // Doc root
-        else if (!strcmp("-d", argv[i]))
-        {
-            if (!documentRoot.empty())
-            {
-                std::cerr << "Document root cannot be set twice" << std::endl;
-                return nullptr;
-            }
-            else if (argc <= i + 1)
-            {
-                std::cerr << "Document root argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            documentRoot = argv[++i];
-        }
-        // Resources directory
-        else if (!strcmp("-r", argv[i]))
-        {
-            if (!resourcesDirectory.empty())
-            {
-                std::cerr << "Resources directory cannot be set twice" << std::endl;
-                return nullptr;
-            }
-            else if (argc <= i + 1)
-            {
-                std::cerr << "Resources directory argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            resourcesDirectory = argv[++i];
-        }
-        // App root directory
-        else if (!strcmp("-a", argv[i]))
-        {
-            if (!appRootDirectory.empty())
-            {
-                std::cerr << "Application root directory cannot be set twice" << std::endl;
-                return nullptr;
-            }
-            else if (argc <= i + 1)
-            {
-                std::cerr << "Application root directory argument requires paramter" << std::endl;
-                return nullptr;
-            }
-            appRootDirectory = argv[++i];
-        }
-        // Neural network file name
-        else if (!strcmp("-n", argv[i]))
-        {
-            if (!neuralNetworkFileName.empty())
-            {
-                std::cerr << "Neural network file name cannot be set twice" << std::endl;
-                return nullptr;
-            }
-            else if (argc <= i + 1)
-            {
-                std::cerr << "Neural network file name argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            neuralNetworkFileName = argv[++i];
-        }
-        // Highscore threshold
-        else if (!strcmp("-t", argv[i]))
-        {
-            if (!highscoreThresholdString.empty())
-            {
-                std::cerr << "Highscore threshold cannot be set twice" << std::endl;
-                return nullptr;
-            }
-            else if (argc <= i + 1)
-            {
-                std::cerr << "Highscore threshold argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            highscoreThresholdString = argv[++i];
-        }
-        // Unknown argument
-        else
-        {
-            std::cerr << "Unknown argument: " << argv[i] << std::endl;
-            return nullptr;
-        }
-    }
-
-    if (!portString.empty())
-    {
-        try
-        {
-            int parsed = std::stoi(portString);
-            if (parsed <= 0 || parsed >= 65536)
-                throw std::invalid_argument("Port number has to be in range [1..65535]");
-            port = (unsigned short)parsed;
-        }
-        catch (std::invalid_argument &exception)
-        {
-            std::cerr << "Port number parsing error: " << exception.what() << std::endl;
-            return nullptr;
-        }
-    }
-
-    if (!highscoreThresholdString.empty())
-    {
-        try
-        {
-            highscoreThreshold = std::stoul(highscoreThresholdString);
-        }
-        catch (std::invalid_argument &exception)
-        {
-            std::cerr << "Error parsing highscore threshold: " << exception.what();
-            return nullptr;
-        }
-    }
-
-    if (serverName.empty())
-    {
-        std::cerr << "Server name not specified" << std::endl;
+    auto parser = WebAppArgumentsParser(argc, argv);
+    auto arguments = parser.parsedArguments();
+    if (!arguments)
         return nullptr;
-    }
-    else if (documentRoot.empty())
-    {
-        std::cerr << "Document root not specified" << std::endl;
-        return nullptr;
-    }
-    else if (resourcesDirectory.empty())
-    {
-        std::cerr << "Resources directory not specified" << std::endl;
-        return nullptr;
-    }
-    else if (appRootDirectory.empty())
-    {
-        std::cerr << "Application root directory not specified" << std::endl;
-    }
-
-    return std::make_unique<WebAppLauncher>(
-            argv[0],
-            port,
-            serverName,
-            documentRoot,
-            resourcesDirectory,
-            appRootDirectory,
-            neuralNetworkFileName,
-            highscoreThreshold);
+    auto pointer = dynamic_cast<WebAppArguments *>(arguments.release());
+    return std::make_unique<WebAppLauncher>(std::unique_ptr<WebAppArguments>(pointer));
 }
 
 }

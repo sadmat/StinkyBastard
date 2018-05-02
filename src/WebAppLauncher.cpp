@@ -7,22 +7,8 @@
 namespace nn2048
 {
 
-WebAppLauncher::WebAppLauncher(const std::string &execName,
-                               unsigned short port,
-                               const std::string &serverName,
-                               const std::string &documentRoot,
-                               const std::string &resourcesDirectory,
-                               const std::string &appRootDirectory,
-                               const std::string &neuralNetworkFileName,
-                               unsigned long highscoreThreshold):
-    _execName(execName),
-    _port(port),
-    _serverName(serverName),
-    _documentRoot(documentRoot),
-    _resourcesDirectory(resourcesDirectory),
-    _appRootDirectory(appRootDirectory),
-    _neuralNetworkFileName(neuralNetworkFileName),
-    _highscoreThreshold(highscoreThreshold)
+WebAppLauncher::WebAppLauncher(std::unique_ptr<WebAppArguments> arguments):
+    _arguments(std::move(arguments))
 {}
 
 int WebAppLauncher::run()
@@ -52,14 +38,14 @@ int WebAppLauncher::run()
 
 bool WebAppLauncher::loadNeuralNetwork()
 {
-    if (_neuralNetworkFileName.empty())
+    if (_arguments->neuralNetworkFileName.empty())
         return true;
     try
     {
-        std::ifstream file(_neuralNetworkFileName);
+        std::ifstream file(_arguments->neuralNetworkFileName);
         if (!file.is_open())
         {
-            std::cerr << "Neural network file could not be opened (" << _neuralNetworkFileName << ")" << std::endl;
+            std::cerr << "Neural network file could not be opened (" << _arguments->neuralNetworkFileName << ")" << std::endl;
             return false;
         }
         _neuralNetwork = NeuralNetwork::NetworkSerializer::deserialize(file);
@@ -75,21 +61,21 @@ bool WebAppLauncher::loadNeuralNetwork()
 
 void WebAppLauncher::setupServer()
 {
-    std::string portString = std::to_string(_port);
+    std::string portString = std::to_string(_arguments->port);
     const char *argv[] {
-        _execName.c_str(),
+        _arguments->argv0.c_str(),
         "--http-address", "0.0.0.0",
         "--http-port", portString.c_str(),
-        "--servername", _serverName.c_str(),
-        "--docroot", _documentRoot.c_str(),
-        "--resources-dir", _resourcesDirectory.c_str(),
-        "--approot", _appRootDirectory.c_str()
+        "--servername", _arguments->serverName.c_str(),
+        "--docroot", _arguments->documentRoot.c_str(),
+        "--resources-dir", _arguments->resourcesDirectory.c_str(),
+        "--approot", _arguments->appRootDirectory.c_str()
     };
     int argc = sizeof(argv) / sizeof(char*);
     _server = std::make_unique<Wt::WServer>(argc, const_cast<char **>(argv));
     _server->addEntryPoint(Wt::EntryPointType::Application,
                            [this] (const Wt::WEnvironment &environment) {
-        return std::make_unique<WebApplication>(environment, _neuralNetwork.get(), _highscoreThreshold);
+        return std::make_unique<WebApplication>(environment, _neuralNetwork.get(), _arguments->highscoreThreshold);
     });
 }
 
