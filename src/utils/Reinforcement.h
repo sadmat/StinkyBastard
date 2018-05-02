@@ -8,7 +8,7 @@ namespace nn2048 {
 class Reinforcement
 {
 public:
-    static double computeReinforcement(Game2048Core::GameCore *gameCore, bool moveSucceeded, unsigned deltaScore);
+    static double computeReinforcement(bool gameOver, bool moveSucceeded, unsigned score, unsigned prevScore);
 };
 
 }

@@ -1,18 +1,17 @@
 #include "Reinforcement.h"
-#include <cmath>
-#include "BoardSignalConverter.h"
 
 namespace nn2048 {
 
-double Reinforcement::computeReinforcement(Game2048Core::GameCore *gameCore, bool moveSucceeded, unsigned deltaScore)
+double Reinforcement::computeReinforcement(bool gameOver, bool moveSucceeded, unsigned score, unsigned prevScore)
 {
-    if (gameCore->isGameOver())
+    if (gameOver)
         return -2.0;
     else if (!moveSucceeded)
         return -1.0;
-    else if (deltaScore > 0) {
-        auto maxTileValue = BoardSignalConverter::maxTileValue(gameCore->board());
-        return std::log2(deltaScore) / std::log2(maxTileValue) + 1.0;
+    else if (score > prevScore) {
+        if (prevScore == 0)
+            return 1.0;
+        return static_cast<double>(score) / (2.0 * prevScore);
     }
     return 0.0;
 }

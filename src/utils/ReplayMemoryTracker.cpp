@@ -7,11 +7,11 @@ namespace nn2048 {
 ReplayMemoryTracker::ReplayMemoryTracker(Game2048Core::GameCore *gameCore):
     _gameCore(gameCore)
 {
-    prepareNewReplayMemory();
+    reset();
 
     _gameCore->onTryingToMoveTiles.connect([this] (Game2048Core::Direction) {
         _boardSignal = BoardSignalConverter::boardToBitSignal(_gameCore->board());
-        _gameScore = _gameCore->score();
+        _prevScore = _gameCore->score();
     });
 
     _gameCore->onTilesMoved.connect([this] (Game2048Core::Direction direction, bool succeeded) {
@@ -25,7 +25,8 @@ ReplayMemoryTracker::ReplayMemoryTracker(Game2048Core::GameCore *gameCore):
 
 void ReplayMemoryTracker::onTilesMoved(Game2048Core::Direction direction, bool succeeded)
 {
-
+    auto reinforcement = Reinforcement::computeReinforcement(_gameCore->isGameOver(), succeeded, _gameCore->score(), _prevScore);
+    _replayMemory->addState(_boardSignal, direction, reinforcement, !succeeded, _gameCore->isGameOver());
 }
 
 void ReplayMemoryTracker::onGameReset()
@@ -45,9 +46,11 @@ bool ReplayMemoryTracker::serializeReplayMemory(const std::string &fileName)
     return _replayMemory->serialize(fileName);
 }
 
-void ReplayMemoryTracker::prepareNewReplayMemory()
+void ReplayMemoryTracker::reset()
 {
     _replayMemory = std::make_unique<ReplayMemory>();
+    _prevScore = 0;
+    _boardSignal.clear();
 }
 
 

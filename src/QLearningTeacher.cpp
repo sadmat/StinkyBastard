@@ -116,7 +116,7 @@ void QLearningTeacher::performLearning() const
 
         // Carry out action
         bool moveFailed = !_game->tryMove(pickedDirection);
-        double reward = Reinforcement::computeReinforcement(_game.get(), !moveFailed, _game->score() - prevScore);
+        double reward = Reinforcement::computeReinforcement(_game->isGameOver(), !moveFailed, _game->score(), prevScore);
         auto newStateSignal = BoardSignalConverter::boardToBitSignal(_game->board());
 
         // Store replay

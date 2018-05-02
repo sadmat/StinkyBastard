@@ -6,6 +6,7 @@
 #include <GameStateTracker.h>
 #include <Network.h>
 #include "../utils/Defaults.h"
+#include "../utils/ReplayMemoryTracker.h"
 
 namespace nn2048
 {
@@ -26,7 +27,7 @@ protected:
     void setupNeuralNetworkGameController(const NeuralNetwork::Network *network);
 
     void showInitialTiles() const;
-    void serializeGameHistory() const;
+    void serializeReplayMemory() const;
     void scoreUpdated(unsigned int score);
 
     void setBestScoreCookie(unsigned int score);
@@ -36,6 +37,7 @@ private:
     unsigned long _highscoreThreshold;
     std::unique_ptr<Game2048Core::GameCore> _gameCore;
     std::unique_ptr<Game2048Core::GameStateTracker> _gameStateTracker;
+    std::unique_ptr<ReplayMemoryTracker> _replayMemoryTracker;
     GameWidget *_gameWidget;
     GameController *_gameController;
 };

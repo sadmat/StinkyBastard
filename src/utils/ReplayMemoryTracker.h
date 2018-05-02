@@ -14,7 +14,7 @@ public:
     ReplayMemoryTracker(Game2048Core::GameCore *gameCore);
 
     bool serializeReplayMemory(const std::string &fileName);
-    void prepareNewReplayMemory();
+    void reset();
 
 protected:
     void onTilesMoved(Game2048Core::Direction direction, bool succeeded);
@@ -25,7 +25,7 @@ private:
     Game2048Core::GameCore *_gameCore;
     std::unique_ptr<ReplayMemory> _replayMemory;
     std::vector<double> _boardSignal;
-    unsigned _gameScore;
+    unsigned _prevScore;
 };
 
 }
