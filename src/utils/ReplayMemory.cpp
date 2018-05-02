@@ -11,12 +11,14 @@ namespace nn2048
 static const std::string SizeKey = "memorySize";
 static const std::string StatesKey = "states";
 
+ReplayMemory::ReplayMemory()
+{
+    ReplayMemory(0);
+}
+
 ReplayMemory::ReplayMemory(unsigned size):
     _size(size)
 {
-    if (_size == 0)
-        throw std::invalid_argument("Replay memory size cannot be 0");
-
     std::random_device randomDevice;
     std::uniform_int_distribution<unsigned> distribution(0, static_cast<unsigned>(time(nullptr)));
     srand(distribution(randomDevice));
@@ -62,7 +64,7 @@ ReplayMemory::ReplayMemory(const std::string &fileName)
 bool ReplayMemory::serialize(const std::string &fileName) const
 {
     auto json = Json::Value(Json::objectValue);
-    json[SizeKey] = _size;
+    json[SizeKey] = _size > 0 ? _size : static_cast<unsigned>(_memory.size());
 
     auto statesArray = Json::Value(Json::arrayValue);
     for (const auto &state: _memory) {
