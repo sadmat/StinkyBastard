@@ -4,6 +4,7 @@
 #include "arguments/LearningSetsMakerArguments.h"
 #include "arguments/NetworkCreatorArguments.h"
 #include "arguments/QLearningArguments.h"
+#include "arguments/WebAppArguments.h"
 
 namespace nn2048
 {
@@ -45,13 +46,13 @@ void Helper::showHelp() const
     std::cout << "    " << QLearningArguments::ReplayBatchSizeArgument  << " size      - replay batch size (optional, " << DefaultReplayBatchSize << " by default)" << std::endl << std::endl;
 
     std::cout << "webapp mode - launches 2048 web application" << std::endl;
-    std::cout << "    -p port      - specify port to deploy app to (" << DefaultServerPort << " by default)" << std::endl;
-    std::cout << "    -s servName  - server name" << std::endl;
-    std::cout << "    -d docRoot   - document root" << std::endl;
-    std::cout << "    -r resDir    - resources directory" << std::endl;
-    std::cout << "    -a appDir    - app root directory" << std::endl;
-    std::cout << "    -n netFile   - neural network file name (optional)" << std::endl;
-    std::cout << "    -t score     - threshold above which games are recorded (optional, " << DefaultHighscoreToRecordThreshold << " by default)" << std::endl;
+    std::cout << "    " << WebAppArguments::PortArgument                  << " port      - specify port to deploy app to (" << DefaultServerPort << " by default)" << std::endl;
+    std::cout << "    " << WebAppArguments::ServerNameArgument            << " servName  - server name" << std::endl;
+    std::cout << "    " << WebAppArguments::DocumentRootArgument          << " docRoot   - document root" << std::endl;
+    std::cout << "    " << WebAppArguments::ResourcesDirectoryArgument    << " resDir    - resources directory" << std::endl;
+    std::cout << "    " << WebAppArguments::AppRootDirectoryArgument      << " appDir    - app root directory" << std::endl;
+    std::cout << "    " << WebAppArguments::NeuralNetworkFileNameArgument << " netFile   - neural network file name (optional)" << std::endl;
+    std::cout << "    " << WebAppArguments::HighscoreThresholdArgument    << " score     - threshold above which games are recorded (optional, " << DefaultHighscoreToRecordThreshold << " by default)" << std::endl;
 }
 
 }
