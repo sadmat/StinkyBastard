@@ -10,6 +10,7 @@
 #include "utils/BoardSignalConverter.h"
 #include "utils/NetworkOutputConverter.h"
 #include "utils/ReplayMemory.h"
+#include "utils/Reinforcement.h"
 
 namespace nn2048
 {
@@ -115,7 +116,7 @@ void QLearningTeacher::performLearning() const
 
         // Carry out action
         bool moveFailed = !_game->tryMove(pickedDirection);
-        double reward = computeReward(moveFailed, _game->score() - prevScore);
+        double reward = Reinforcement::computeReinforcement(_game.get(), !moveFailed, _game->score() - prevScore);
         auto newStateSignal = BoardSignalConverter::boardToBitSignal(_game->board());
 
         // Store replay
@@ -184,20 +185,6 @@ void QLearningTeacher::serializeNetwork() const
     std::cout << "Serializing network... ";
     _network->save(_arguments->networkFileName);
     std::cout << "ok" << std::endl;
-}
-
-double QLearningTeacher::computeReward(bool moveFailed, unsigned deltaScore) const
-{
-    if (_game->isGameOver())
-        return -2.0;
-    else if (moveFailed)
-        return -1.0;
-    else if (deltaScore > 0)
-    {
-        auto maxTileValue = BoardSignalConverter::maxTileValue(_game->board());
-        return std::log2(deltaScore) / std::log2(maxTileValue) + 1.0;
-    }
-    return 0.0;
 }
 
 std::function<bool()> QLearningTeacher::learningCondition(const unsigned &age, const unsigned &score) const

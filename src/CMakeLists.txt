@@ -39,7 +39,9 @@ set(SOURCES
     arguments/QLearningArgumentsParser.cpp
     utils/QLearningState.cpp
     QLearningTeacher.cpp
+    utils/Reinforcement.cpp
     utils/ReplayMemory.cpp
+    utils/ReplayMemoryTracker.cpp
     web/ScoreWidget.cpp
     utils/TilePositionComparer.cpp
     web/WebApplication.cpp
@@ -74,7 +76,9 @@ set(HEADERS
     arguments/QLearningArgumentsParser.h
     utils/QLearningState.h
     QLearningTeacher.h
+    utils/Reinforcement.h
     utils/ReplayMemory.h
+    utils/ReplayMemoryTracker.h
     web/ScoreWidget.h
     utils/TilePositionComparer.h
     web/WebApplication.h
