@@ -21,12 +21,15 @@ ReplayMemoryTracker::ReplayMemoryTracker(Game2048Core::GameCore *gameCore):
     _gameCore->onReset.connect([this] () {
         onGameReset();
     });
+
+    _gameCore->onGameOver.connect([this] () {
+        onGameOver();
+    });
 }
 
 void ReplayMemoryTracker::onTilesMoved(Game2048Core::Direction direction, bool succeeded)
 {
-    auto reinforcement = Reinforcement::computeReinforcement(_gameCore->isGameOver(), succeeded, _gameCore->score(), _prevScore);
-    _replayMemory->addState(_boardSignal, direction, reinforcement, !succeeded, _gameCore->isGameOver());
+    saveNewState(succeeded, direction);
 }
 
 void ReplayMemoryTracker::onGameReset()
@@ -36,7 +39,7 @@ void ReplayMemoryTracker::onGameReset()
 
 void ReplayMemoryTracker::onGameOver()
 {
-
+    saveNewState(true, Game2048Core::Direction::None);
 }
 
 bool ReplayMemoryTracker::serializeReplayMemory(const std::string &fileName)
@@ -53,6 +56,11 @@ void ReplayMemoryTracker::reset()
     _boardSignal.clear();
 }
 
+void ReplayMemoryTracker::saveNewState(bool succeeded, Game2048Core::Direction direction)
+{
+    auto reinforcement = Reinforcement::computeReinforcement(_gameCore->isGameOver(), succeeded, _gameCore->score(), _prevScore);
+    _replayMemory->addState(_boardSignal, direction, reinforcement, !succeeded, _gameCore->isGameOver());
+}
 
 
 }

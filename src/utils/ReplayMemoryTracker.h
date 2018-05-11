@@ -20,6 +20,7 @@ protected:
     void onTilesMoved(Game2048Core::Direction direction, bool succeeded);
     void onGameReset();
     void onGameOver();
+    void saveNewState(bool succeeded, Game2048Core::Direction direction);
 
 private:
     Game2048Core::GameCore *_gameCore;
