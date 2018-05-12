@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <LearningNetwork.h>
+#include "arguments/NetworkTeacherArguments.h"
 
 namespace nn2048
 {
@@ -13,12 +14,7 @@ namespace nn2048
 class NetworkTeacher: public Application
 {
 public:
-    NetworkTeacher(const std::string &networkFileName,
-                   const std::string &learningSetsFileName,
-                   unsigned maxEpochs,
-                   double minError,
-                   double learningRate,
-                   double momentum);
+    NetworkTeacher(std::unique_ptr<NetworkTeacherArguments> arguments);
 
     int run();
     void onSigInt();
@@ -31,12 +27,7 @@ protected:
     void serializeNetwork(const NeuralNetwork::LearningNetwork *network) const;
 
 private:
-    std::string _networkFileName;
-    std::string _learningSetsFileName;
-    unsigned _maxEpochs;
-    double _minError;
-    double _learningRate;
-    double _momentum;
+    std::unique_ptr<NetworkTeacherArguments> _arguments;
     bool _sigIntCought;
     std::unique_ptr<NeuralNetwork::LearningNetwork> _network;
 };

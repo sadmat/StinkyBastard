@@ -12,6 +12,7 @@
 #include "utils/Defaults.h"
 #include "arguments/LearningSetsMakerArgumentsParser.h"
 #include "arguments/NetworkCreatorArgumentsParser.h"
+#include "arguments/NetworkTeacherArgumentsParser.h"
 #include "arguments/QLearningArgumentsParser.h"
 #include "arguments/WebAppArgumentsParser.h"
 
@@ -86,150 +87,12 @@ std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char 
 
 std::unique_ptr<Application> Launcher::networkTeacherApplication(int argc, char *argv[])
 {
-    std::string networkFileName;
-    std::string learningSetsFileName;
-    unsigned maxEpochs = 0;
-    double minError = 0.0;
-    double learningRate = DefaultLearningRate;
-    double momentum = DefaultMomentumFactor;
-
-    for (int i = 2; i < argc; ++i)
-    {
-        // Neuron file name
-        if (strcmp("-n", argv[i]) == 0)
-        {
-            if (!networkFileName.empty())
-            {
-                std::cerr << "Network file name already set" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Network file name argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            networkFileName = argv[++i];
-        }
-        // Learning sets file name
-        else if (strcmp("-l", argv[i]) == 0)
-        {
-            if (!learningSetsFileName.empty())
-            {
-                std::cerr << "Learning sets file name already set" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Learning sets file name argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            learningSetsFileName = argv[++i];
-        }
-        // Epochs
-        else if (strcmp("-c", argv[i]) == 0)
-        {
-            if (maxEpochs)
-            {
-                std::cerr << "Epochs limit already set" << std::endl;
-                return nullptr;
-            }
-            if (argc < i + 1)
-            {
-                std::cerr << "Epochs limit argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            try
-            {
-                maxEpochs = std::stoi(argv[++i]);
-            }
-            catch (std::invalid_argument &exception)
-            {
-                std::cerr << "Invalid epochs limit value: " << argv[i] << std::endl;
-                return nullptr;
-            }
-        }
-        // Error
-        else if (strcmp("-e", argv[i]) == 0)
-        {
-            if (std::abs(minError) > 0.0000001)
-            {
-                std::cerr << "Error limit already set" << std::endl;
-                return nullptr;
-            }
-            if (argc <= i + 1)
-            {
-                std::cerr << "Error limit argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            try
-            {
-                minError = std::stod(argv[++i]);
-            }
-            catch (std::runtime_error &exception)
-            {
-                std::cerr << "Invalid error limit value: " << argv[i] << std::endl;
-            }
-        }
-        // Learning rate
-        else if (strcmp("-r", argv[i]) == 0)
-        {
-            if (argc <= i + 1)
-            {
-                std::cerr << "Learning rate argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            try
-            {
-                learningRate = std::stod(argv[++i]);
-            }
-            catch (std::runtime_error &exception)
-            {
-                std::cerr << "Invalid learning rate value: " << argv[i] << std::endl;
-                return nullptr;
-            }
-        }
-        // Momentum
-        else if (strcmp("-m", argv[i]) == 0)
-        {
-            if (argc <= i + 1)
-            {
-                std::cerr << "Momentum argument requires parameter" << std::endl;
-                return nullptr;
-            }
-            try
-            {
-                momentum = std::stod(argv[++i]);
-            }
-            catch (std::runtime_error &exception)
-            {
-                std::cerr << "Momentum argument requires parameter" << std::endl;
-                return nullptr;
-            }
-        }
-        else
-        {
-            std::cerr << "Unknown argument: " << argv[i] << std::endl;
-            return nullptr;
-        }
-    }
-
-    if (networkFileName.empty())
-    {
-        std::cerr << "Network file name not specified" << std::endl;
+    auto parser = NetworkTeacherArgumentsParser(argc, argv);
+    auto arguments = parser.parsedArguments();
+    if (!arguments)
         return nullptr;
-    }
-    if (learningSetsFileName.empty())
-    {
-        std::cerr << "Learning sets file name not specified" << std::endl;
-        return nullptr;
-    }
-    if (maxEpochs == 0 && std::abs(minError) < 0.000001)
-    {
-        std::cerr << "Specify at least one limit" << std::endl;
-        return nullptr;
-    }
-
-    return std::make_unique<NetworkTeacher>(networkFileName, learningSetsFileName, maxEpochs, minError, learningRate, momentum);
+    auto pointer = dynamic_cast<NetworkTeacherArguments *>(arguments.release());
+    return std::make_unique<NetworkTeacher>(std::unique_ptr<NetworkTeacherArguments>(pointer));
 }
 
 std::unique_ptr<Application> Launcher::qNetworkTeacherApplication(int argc, char *argv[])

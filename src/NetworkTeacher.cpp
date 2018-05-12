@@ -9,18 +9,8 @@
 namespace nn2048
 {
 
-NetworkTeacher::NetworkTeacher(const std::string &networkFileName,
-                               const std::string &learningSetsFileName,
-                               unsigned maxEpochs,
-                               double minError,
-                               double learningRate,
-                               double momentum):
-    _networkFileName(networkFileName),
-    _learningSetsFileName(learningSetsFileName),
-    _maxEpochs(maxEpochs),
-    _minError(minError),
-    _learningRate(learningRate),
-    _momentum(momentum),
+NetworkTeacher::NetworkTeacher(std::unique_ptr<NetworkTeacherArguments> arguments):
+    _arguments(std::move(arguments)),
     _sigIntCought(false)
 {}
 
@@ -50,11 +40,11 @@ std::unique_ptr<NeuralNetwork::LearningNetwork> NetworkTeacher::loadNeuralNetwor
         std::cout << "Loading neural network... ";
         std::cout.flush();
 
-        std::ifstream file(_networkFileName);
+        std::ifstream file(_arguments->networkFileName);
         if (!file.is_open())
         {
             std::cout << "failed" << std::endl;
-            std::cerr << "Could not open file " << _networkFileName << std::endl;
+            std::cerr << "Could not open file " << _arguments->networkFileName << std::endl;
             return nullptr;
         }
 
@@ -78,11 +68,11 @@ std::vector<NeuralNetwork::LearningSet> NetworkTeacher::loadLearningSets() const
         std::cout << "Loading learning sets... ";
         std::cout.flush();
 
-        std::ifstream file(_learningSetsFileName);
+        std::ifstream file(_arguments->learningSetsFileName);
         if (!file.is_open())
         {
             std::cout << "failed" << std::endl;
-            std::cerr << "Could not open file " << _learningSetsFileName << std::endl;
+            std::cerr << "Could not open file " << _arguments->learningSetsFileName << std::endl;
             return {};
         }
 
@@ -108,7 +98,7 @@ void NetworkTeacher::performLearning(NeuralNetwork::LearningNetwork *network, co
         }));
 
         std::cout << "Learning..." << std::endl;
-        network->learn(learningSets, _learningRate, _momentum, _maxEpochs, _minError, &_sigIntCought);
+        network->learn(learningSets, _arguments->learningRate, _arguments->momentum, _arguments->maxEpochs, _arguments->minError, &_sigIntCought);
         std::cout << "Learning finished." << std::endl;
     }
     catch (std::invalid_argument &exception)
@@ -124,11 +114,11 @@ void NetworkTeacher::serializeNetwork(const NeuralNetwork::LearningNetwork *netw
         std::cout << "Serializing network... ";
         std::cout.flush();
 
-        std::ofstream file(_networkFileName);
+        std::ofstream file(_arguments->networkFileName);
         if (!file.is_open())
         {
             std::cout << "failed" << std::endl;
-            std::cerr << "Could not open file " << _networkFileName << std::endl;
+            std::cerr << "Could not open file " << _arguments->networkFileName << std::endl;
             return;
         }
 
