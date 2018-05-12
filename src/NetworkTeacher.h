@@ -26,6 +26,7 @@ protected:
     std::unique_ptr<FANN::neural_net> loadNeuralNetwork();
     std::unique_ptr<ReplayMemory> loadReplayMemory();
     std::vector<std::string> replayMemoryFileNames();
+    void computeQValues(const ReplayMemory &replayMemory);
     void performTraining();
     bool serializeNetwork();
 

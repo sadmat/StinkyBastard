@@ -137,4 +137,10 @@ std::vector<const QLearningState *> ReplayMemory::sampleBatch(unsigned size)
     return batch;
 }
 
+void ReplayMemory::takeStatesFrom(ReplayMemory &other)
+{
+    std::move(other._memory.begin(), other._memory.end(), std::back_inserter(_memory));
+    other._memory.clear();
+}
+
 }

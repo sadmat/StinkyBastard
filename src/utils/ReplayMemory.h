@@ -35,6 +35,8 @@ public:
     bool isFull() const { return _size > 0 && _memory.size() == _size; }
     unsigned long currentSize() const { return _memory.size(); }
 
+    void takeStatesFrom(ReplayMemory &other);
+
 private:
     unsigned _size;
     std::deque<std::unique_ptr<QLearningState>> _memory;
