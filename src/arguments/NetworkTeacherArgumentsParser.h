@@ -14,7 +14,7 @@ public:
 
 private:
     bool parseNetworkFileName(std::string &output);
-    bool parseLearningSetsFileName(std::string &output);
+    bool parseReplayMemoryDirectory(std::string &output);
     bool parseMaxEpochs(unsigned &output);
     bool parseMinError(double &output);
     bool parseLearningRate(double &output);

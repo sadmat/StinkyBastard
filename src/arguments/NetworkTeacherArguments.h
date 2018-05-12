@@ -11,14 +11,14 @@ class NetworkTeacherArguments : public Arguments
 {
 public:
     std::string networkFileName;
-    std::string learningSetsFileName;
+    std::string replayMemoryDirectory;
     unsigned maxEpochs = 0;
     double minError = 0.0;
     double learningRate = DefaultLearningRate;
     double momentum = DefaultMomentumFactor;
 
     const static std::string NetworkFileNameArgument;
-    const static std::string LearningSetsFileNameArgument;
+    const static std::string ReplayMemoryDirectoryArgument;
     const static std::string MaxEpochsArgument;
     const static std::string MinErrorArgument;
     const static std::string LearningRateArgument;

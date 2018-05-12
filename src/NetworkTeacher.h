@@ -4,6 +4,7 @@
 #include "Application.h"
 #include <memory>
 #include <map>
+#include <vector>
 #include <doublefann.h>
 #include <fann_cpp.h>
 #include "arguments/NetworkTeacherArguments.h"
@@ -24,6 +25,7 @@ protected:
     bool initialize();
     std::unique_ptr<FANN::neural_net> loadNeuralNetwork();
     std::unique_ptr<ReplayMemory> loadReplayMemory();
+    std::vector<std::string> replayMemoryFileNames();
     void performTraining();
     bool serializeNetwork();
 

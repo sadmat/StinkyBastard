@@ -1,6 +1,7 @@
 #include "NetworkTeacher.h"
 #include <iostream>
 #include <fstream>
+#include <boost/filesystem.hpp>
 #include <stdexcept>
 
 namespace nn2048
@@ -51,29 +52,61 @@ bool NetworkTeacher::initialize()
     }
     std::clog << "ok" << std::endl;
 
-    std::clog << "Loading replay memory... ";
+    std::clog << "Loading replay memory..." << std::endl;
     std::clog.flush();
     _replayMemory = loadReplayMemory();
     if (!_replayMemory) {
-        std::clog << "failed" << std::endl;
         return false;
     } else if (_replayMemory->currentSize() == 0) {
-        std::clog << "failed" << std::endl;
         std::clog << "Loaded replay memory is empty" << std::endl;
         return false;
     }
-    std::clog << "ok" << std::endl;
+    std::clog << "Replay memory loaded" << std::endl;
     return true;
 }
 
 std::unique_ptr<FANN::neural_net> NetworkTeacher::loadNeuralNetwork()
 {
-
+    try {
+        auto network = std::make_unique<FANN::neural_net>(_arguments->networkFileName);
+        return network;
+    } catch (...) {
+        return nullptr;
+    }
 }
 
 std::unique_ptr<ReplayMemory> NetworkTeacher::loadReplayMemory()
 {
+    auto fileNames = replayMemoryFileNames();
+    if (fileNames.empty())
+        return nullptr;
 
+    auto replayMemory = std::make_unique<ReplayMemory>();
+    for (auto &fileName: fileNames) {
+        try {
+            auto gameReplay = std::make_unique<ReplayMemory>(fileName);
+            // TODO: compute qvalues
+            // TODO: merge with replayMemory
+        } catch (std::runtime_error &ex) {
+            std::clog << "Replay memory loading failed: " << fileName << ", exception: " << ex.what() << std::endl;
+            std::clog << "Omitting" << std::endl;
+        }
+    }
+    return replayMemory;
+}
+
+std::vector<std::string> NetworkTeacher::replayMemoryFileNames()
+{
+    if (!boost::filesystem::is_directory(_arguments->replayMemoryDirectory)) {
+        return {};
+    }
+
+    auto fileNames = std::vector<std::string>();
+    for (auto &entry: boost::filesystem::directory_iterator(_arguments->replayMemoryDirectory)) {
+        if (entry.path().extension() == ".json")
+            fileNames.push_back(entry.path().string());
+    }
+    return fileNames;
 }
 
 void NetworkTeacher::performTraining()

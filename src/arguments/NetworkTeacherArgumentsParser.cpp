@@ -17,8 +17,8 @@ std::unique_ptr<Arguments> NetworkTeacherArgumentsParser::parsedArguments()
         if (currentArg == NetworkTeacherArguments::NetworkFileNameArgument) {
             if (!parseNetworkFileName(arguments->networkFileName))
                 return nullptr;
-        } else if (currentArg == NetworkTeacherArguments::LearningSetsFileNameArgument) {
-            if (!parseLearningSetsFileName(arguments->learningSetsFileName))
+        } else if (currentArg == NetworkTeacherArguments::ReplayMemoryDirectoryArgument) {
+            if (!parseReplayMemoryDirectory(arguments->replayMemoryDirectory))
                 return nullptr;
         } else if (currentArg == NetworkTeacherArguments::MaxEpochsArgument) {
             if (!parseMaxEpochs(arguments->maxEpochs))
@@ -40,8 +40,8 @@ std::unique_ptr<Arguments> NetworkTeacherArgumentsParser::parsedArguments()
     if (arguments->networkFileName.length() == 0) {
         std::cerr << "Missing network file name argument" << std::endl;
         return nullptr;
-    } else if (arguments->learningSetsFileName.length() == 0) {
-        std::cerr << "Missing learning sets file name argument" << std::endl;
+    } else if (arguments->replayMemoryDirectory.length() == 0) {
+        std::cerr << "Missing replay memory directory argument" << std::endl;
         return nullptr;
     } else if (arguments->maxEpochs == 0 && std::abs(arguments->minError) < 0.000001) {
         std::cerr << "Missing learning limit condition (max epochs or min error)" << std::endl;
@@ -60,10 +60,10 @@ bool NetworkTeacherArgumentsParser::parseNetworkFileName(std::string &output)
     return true;
 }
 
-bool NetworkTeacherArgumentsParser::parseLearningSetsFileName(std::string &output)
+bool NetworkTeacherArgumentsParser::parseReplayMemoryDirectory(std::string &output)
 {
     if (!hasParameter(_currentArgIndex)) {
-        std::cerr << "Learning sets file name argument requires parameter" << std::endl;
+        std::cerr << "Replay memory directory argument requires parameter" << std::endl;
         return false;
     }
     output = _argv[++_currentArgIndex];
