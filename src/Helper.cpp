@@ -3,6 +3,7 @@
 #include "utils/Defaults.h"
 #include "arguments/LearningSetsMakerArguments.h"
 #include "arguments/NetworkCreatorArguments.h"
+#include "arguments/NetworkTeacherArguments.h"
 #include "arguments/QLearningArguments.h"
 #include "arguments/WebAppArguments.h"
 
@@ -25,13 +26,13 @@ void Helper::showHelp() const
     std::cout << "    " << NetworkCreatorArguments::CreateFannNetworkArgument  << "           - creates FANN network instead of standard json one" << std::endl << std::endl;
 
     std::cout << "learn mode - performs backpropagation algorythm" << std::endl;
-    std::cout << "    -n file      - neural network file name" << std::endl;
-    std::cout << "    -l file      - learning sets file name" << std::endl;
-    std::cout << "    -c epochs    - limit learning by maximum number of epochs" << std::endl;
-    std::cout << "    -e error     - limit learning by minimum error value" << std::endl;
-    std::cout << "    -r rate      - learning rate (optional, " << DefaultLearningRate << " by default)" << std::endl;
-    std::cout << "    -m momentum  - momentum factor (optional, " << DefaultMomentumFactor << " by default)" << std::endl;
-    std::cout << "    Arguments -c and -e can be used in combination with each other. At least" << std::endl;
+    std::cout << "    " << NetworkTeacherArguments::NetworkFileNameArgument << " file      - neural network file name" << std::endl;
+    std::cout << "    " << NetworkTeacherArguments::LearningSetsFileNameArgument << " file      - learning sets file name" << std::endl;
+    std::cout << "    " << NetworkTeacherArguments::MaxEpochsArgument << " epochs    - limit learning by maximum number of epochs" << std::endl;
+    std::cout << "    " << NetworkTeacherArguments::MinErrorArgument << " error     - limit learning by minimum error value" << std::endl;
+    std::cout << "    " << NetworkTeacherArguments::LearningRateArgument << " rate      - learning rate (optional, " << DefaultLearningRate << " by default)" << std::endl;
+    std::cout << "    " << NetworkTeacherArguments::MomentumFactorArgument << " momentum  - momentum factor (optional, " << DefaultMomentumFactor << " by default)" << std::endl;
+    std::cout << "    Arguments " << NetworkTeacherArguments::MaxEpochsArgument << " and " << NetworkTeacherArguments::MinErrorArgument << " can be used in combination with each other. At least" << std::endl;
     std::cout << "    one of them has to be specified." << std::endl << std::endl;
 
     std::cout << "qlearn mode - performs Q Learning algorythm" << std::endl;

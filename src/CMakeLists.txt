@@ -34,6 +34,7 @@ set(SOURCES
     NetworkCreator.cpp
     utils/NetworkOutputConverter.cpp
     NetworkTeacher.cpp
+    arguments/NetworkTeacherArguments.cpp
     web/NeuralNetworkGameController.cpp
     arguments/QLearningArguments.cpp
     arguments/QLearningArgumentsParser.cpp
@@ -71,6 +72,7 @@ set(HEADERS
     NetworkCreator.h
     utils/NetworkOutputConverter.h
     NetworkTeacher.h
+    arguments/NetworkTeacherArguments.h
     web/NeuralNetworkGameController.h
     arguments/QLearningArguments.h
     arguments/QLearningArgumentsParser.h
