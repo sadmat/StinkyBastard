@@ -19,6 +19,7 @@ private:
     bool parseMinError(double &output);
     bool parseLearningRate(double &output);
     bool parseMomentumFactor(double &output);
+    bool parseGammaFactor(double &output);
 };
 
 }

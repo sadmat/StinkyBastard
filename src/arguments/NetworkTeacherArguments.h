@@ -16,6 +16,7 @@ public:
     double minError = 0.0;
     double learningRate = DefaultLearningRate;
     double momentum = DefaultMomentumFactor;
+    double gamma = DefaultGammaFactor;
 
     const static std::string NetworkFileNameArgument;
     const static std::string ReplayMemoryDirectoryArgument;
@@ -23,6 +24,7 @@ public:
     const static std::string MinErrorArgument;
     const static std::string LearningRateArgument;
     const static std::string MomentumFactorArgument;
+    const static std::string GammaFactorArgument;
 };
 
 }

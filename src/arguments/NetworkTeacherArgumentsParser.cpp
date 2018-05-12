@@ -32,6 +32,9 @@ std::unique_ptr<Arguments> NetworkTeacherArgumentsParser::parsedArguments()
         } else if (currentArg == NetworkTeacherArguments::MomentumFactorArgument) {
             if (!parseMomentumFactor(arguments->momentum))
                 return nullptr;
+        } else if (currentArg == NetworkTeacherArguments::GammaFactorArgument) {
+            if (!parseGammaFactor(arguments->gamma))
+                return nullptr;
         } else {
             std::cerr << "Unknown argument " << currentArg << std::endl;
             return nullptr;
@@ -113,6 +116,18 @@ bool NetworkTeacherArgumentsParser::parseMomentumFactor(double &output)
         return false;
     } else if (!tryParseDouble(_argv[++_currentArgIndex], output)) {
         std::cerr << "Could not parse momentum factor parameter" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool NetworkTeacherArgumentsParser::parseGammaFactor(double &output)
+{
+    if (!hasParameter(_currentArgIndex)) {
+        std::cerr << "Gamma factor argument requires parameter" << std::endl;
+        return false;
+    } else if (!tryParseDouble(_argv[++_currentArgIndex], output)) {
+        std::cerr << "Could not parse gamma factor parameter" << std::endl;
         return false;
     }
     return true;
