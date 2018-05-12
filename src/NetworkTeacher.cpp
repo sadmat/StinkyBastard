@@ -111,7 +111,13 @@ std::vector<std::string> NetworkTeacher::replayMemoryFileNames()
 
 void NetworkTeacher::computeQValues(const ReplayMemory &replayMemory)
 {
-    // TODO
+    double prevQValue = 0.0;
+    for (auto it = replayMemory.states().rbegin(); it != replayMemory.states().rend(); ++it) {
+        auto &state = *it;
+        double qvalue = state->receivedReward() + _arguments->gamma * prevQValue;
+        prevQValue = qvalue;
+        _qvalueCache[state.get()] = qvalue;
+    }
 }
 
 void NetworkTeacher::performTraining()
@@ -121,7 +127,7 @@ void NetworkTeacher::performTraining()
 
 bool NetworkTeacher::serializeNetwork()
 {
-
+    return true;
 }
 
 //std::unique_ptr<NeuralNetwork::LearningNetwork> NetworkTeacher::loadNeuralNetwork() const

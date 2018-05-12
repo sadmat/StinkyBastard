@@ -33,6 +33,10 @@ ReplayMemory::ReplayMemory(const std::string &fileName)
     file >> json;
     file.close();
 
+    if (json.type() != Json::objectValue) {
+        throw std::runtime_error("Replay memory json has to be an object");
+    }
+
     if (json.isMember(SizeKey)) {
         auto sizeJson = json[SizeKey];
         if (sizeJson.type() != Json::intValue) {

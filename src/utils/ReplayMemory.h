@@ -37,6 +37,8 @@ public:
 
     void takeStatesFrom(ReplayMemory &other);
 
+    const std::deque<std::unique_ptr<QLearningState>> &states() const { return _memory; }
+
 private:
     unsigned _size;
     std::deque<std::unique_ptr<QLearningState>> _memory;

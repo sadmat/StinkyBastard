@@ -32,6 +32,7 @@ void Helper::showHelp() const
     std::cout << "    " << NetworkTeacherArguments::MinErrorArgument              << " error     - limit learning by minimum error value" << std::endl;
     std::cout << "    " << NetworkTeacherArguments::LearningRateArgument          << " rate      - learning rate (optional, " << DefaultLearningRate << " by default)" << std::endl;
     std::cout << "    " << NetworkTeacherArguments::MomentumFactorArgument        << " momentum  - momentum factor (optional, " << DefaultMomentumFactor << " by default)" << std::endl;
+    std::cout << "    " << NetworkTeacherArguments::GammaFactorArgument           << " gamma     - gamma factor (optional, " << DefaultGammaFactor << " by default)" << std::endl;
     std::cout << "    Arguments " << NetworkTeacherArguments::MaxEpochsArgument << " and " << NetworkTeacherArguments::MinErrorArgument << " can be used in combination with each other. At least" << std::endl;
     std::cout << "    one of them has to be specified." << std::endl << std::endl;
 
