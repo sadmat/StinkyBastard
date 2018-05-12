@@ -2,11 +2,12 @@
 #define NETWORKTEACHER_H
 
 #include "Application.h"
-#include <string>
-#include <vector>
 #include <memory>
-#include <LearningNetwork.h>
+#include <map>
+#include <doublefann.h>
+#include <fann_cpp.h>
 #include "arguments/NetworkTeacherArguments.h"
+#include "utils/ReplayMemory.h"
 
 namespace nn2048
 {
@@ -20,16 +21,18 @@ public:
     void onSigInt();
 
 protected:
-    std::unique_ptr<NeuralNetwork::LearningNetwork> loadNeuralNetwork() const;
-    std::vector<NeuralNetwork::LearningSet> loadLearningSets() const;
-    void performLearning(NeuralNetwork::LearningNetwork *network,
-                         const std::vector<NeuralNetwork::LearningSet> &learningSets) const;
-    void serializeNetwork(const NeuralNetwork::LearningNetwork *network) const;
+    bool initialize();
+    std::unique_ptr<FANN::neural_net> loadNeuralNetwork();
+    std::unique_ptr<ReplayMemory> loadReplayMemory();
+    void performTraining();
+    bool serializeNetwork();
 
 private:
     std::unique_ptr<NetworkTeacherArguments> _arguments;
     bool _sigIntCought;
-    std::unique_ptr<NeuralNetwork::LearningNetwork> _network;
+    std::unique_ptr<FANN::neural_net> _network;
+    std::unique_ptr<ReplayMemory> _replayMemory;
+    std::map<QLearningState *, double> _qvalueCache;
 };
 
 }
