@@ -114,7 +114,7 @@ std::vector<const QLearningState *> ReplayMemory::sampleBatch(unsigned size)
 {
     if (!size)
         throw std::invalid_argument("Sample batch size cannot be 0");
-    if (size > _size)
+    if (_size > 0 && size > _size)
         throw std::invalid_argument("Sample batch size cannot be greater than replay memory size");
     if (size > _memory.size())
         throw std::invalid_argument("Stample batch size cannot be greater than current replay memory size");
