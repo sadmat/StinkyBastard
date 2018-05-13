@@ -162,14 +162,20 @@ double NetworkTeacher::trainNetwork(const QLearningState *state)
     double outputs[4];
     double targetValue = _qvalueCache.at(state);
 
-    if (state->isInTerminalState() || state->takenAction() == Game2048Core::Direction::None) {
-        for (unsigned long i = 0; i < sizeof(outputs) / sizeof(outputs[0]); ++i)
+    auto response = _network->run(inputs);
+    for (unsigned long i = 0; i < sizeof(outputs) / sizeof(outputs[0]); ++i)
+        outputs[i] = response[i];
+    if (state->takenAction() == Game2048Core::Direction::None) {
+        for (unsigned long i = 0; i < sizeof(outputs) / sizeof(outputs[0]); ++i) {
+            double currentLoss = outputs[i] - targetValue;
+            loss += currentLoss * currentLoss;
             outputs[i] = targetValue;
+        }
+        loss /= sizeof(outputs) / sizeof(outputs[0]);
     } else {
-        auto response = _network->run(inputs);
-        for (unsigned long i = 0; i < sizeof(outputs) / sizeof(outputs[0]); ++i)
-            outputs[i] = response[i];
         auto targetNeuron = static_cast<unsigned>(state->takenAction());
+        loss = outputs[targetNeuron] - targetValue;
+        loss *= loss;
         outputs[targetNeuron] = targetValue;
     }
 
@@ -194,25 +200,6 @@ bool NetworkTeacher::serializeNetwork()
         return false;
     }
 }
-
-
-//void NetworkTeacher::performLearning(NeuralNetwork::LearningNetwork *network, const std::vector<NeuralNetwork::LearningSet> &learningSets) const
-//{
-//    try
-//    {
-//        auto connection = core::ScopedConnection(network->learningProgress.connect([] (unsigned epoch, double error) {
-//            std::cout << "Epoch finished: " << epoch << ", error: " << error << std::endl;
-//        }));
-
-//        std::cout << "Learning..." << std::endl;
-//        network->learn(learningSets, _arguments->learningRate, _arguments->momentum, _arguments->maxEpochs, _arguments->minError, &_sigIntCought);
-//        std::cout << "Learning finished." << std::endl;
-//    }
-//    catch (std::invalid_argument &exception)
-//    {
-//        std::cerr << "Invalid argument: " << exception.what() << std::endl;
-//    }
-//}
 
 }
 

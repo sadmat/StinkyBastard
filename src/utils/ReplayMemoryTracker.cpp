@@ -34,7 +34,7 @@ void ReplayMemoryTracker::onTilesMoved(Game2048Core::Direction direction, bool s
 
 void ReplayMemoryTracker::onGameReset()
 {
-
+    saveNewState(true, Game2048Core::Direction::None);
 }
 
 void ReplayMemoryTracker::onGameOver()
