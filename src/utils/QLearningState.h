@@ -26,6 +26,7 @@ public:
     double receivedReward() const { return _reward; }
     bool hasMoveFailed() const { return _moveFailed; }
     bool isInTerminalState() const { return _terminalState; }
+    void setTerminalState(bool terminalState) { _terminalState = terminalState; }
 
     void setNextState(const QLearningState * next) { _nextState = next; }
     const QLearningState *nextState() const { return _nextState; }

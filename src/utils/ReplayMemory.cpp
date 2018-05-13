@@ -60,6 +60,7 @@ ReplayMemory::ReplayMemory(const std::string &fileName)
             auto state = std::make_unique<QLearningState>(stateJson);
             addState(std::move(state));
         }
+        _memory.back()->setTerminalState(true);
     } else {
         throw std::runtime_error("Missing replay memory states array");
     }
