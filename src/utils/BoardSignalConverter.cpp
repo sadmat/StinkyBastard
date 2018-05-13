@@ -40,8 +40,6 @@ double BoardSignalConverter::maxTileValue(const Game2048Core::BoardState &board)
 
 std::vector<double> BoardSignalConverter::boardToBitSignal(const Game2048Core::BoardState &board)
 {
-    size_t numberOfTiles = 16;
-    size_t numberOfPossibleValues = 16;
     auto signal = std::vector<double>(numberOfPossibleValues * numberOfTiles);
     size_t index = 0;
 

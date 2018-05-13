@@ -28,11 +28,13 @@ protected:
     std::vector<std::string> replayMemoryFileNames();
     void computeQValues(const ReplayMemory &replayMemory);
     void performTraining();
+    double trainNetwork(const QLearningState *state);
+    void printStats(double totalLoss, unsigned epoch, unsigned age);
     bool serializeNetwork();
 
 private:
     std::unique_ptr<NetworkTeacherArguments> _arguments;
-    bool _sigIntCought;
+    bool _sigIntCaught;
     std::unique_ptr<FANN::neural_net> _network;
     std::unique_ptr<ReplayMemory> _replayMemory;
     std::map<QLearningState *, double> _qvalueCache;

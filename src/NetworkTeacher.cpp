@@ -3,13 +3,14 @@
 #include <fstream>
 #include <boost/filesystem.hpp>
 #include <stdexcept>
+#include "utils/BoardSignalConverter.h"
 
 namespace nn2048
 {
 
 NetworkTeacher::NetworkTeacher(std::unique_ptr<NetworkTeacherArguments> arguments):
     _arguments(std::move(arguments)),
-    _sigIntCought(false)
+    _sigIntCaught(false)
 {}
 
 int NetworkTeacher::run()
@@ -38,19 +39,18 @@ void NetworkTeacher::onSigInt()
 {
     std::clog << "SIGINT caught. Aborting..." << std::endl;
     std::clog.flush();
-    _sigIntCought = true;
+    _sigIntCaught = true;
 }
 
 bool NetworkTeacher::initialize()
 {
-    std::clog << "Loading neural network... ";
+    std::clog << "Loading neural network..." << std::endl;
     std::clog.flush();
     _network = loadNeuralNetwork();
     if (!_network) {
-        std::clog << "failed" << std::endl;
         return false;
     }
-    std::clog << "ok" << std::endl;
+    std::clog << "Neural network loaded" << std::endl;
 
     std::clog << "Loading replay memory..." << std::endl;
     std::clog.flush();
@@ -69,8 +69,18 @@ std::unique_ptr<FANN::neural_net> NetworkTeacher::loadNeuralNetwork()
 {
     try {
         auto network = std::make_unique<FANN::neural_net>(_arguments->networkFileName);
+        if (network->get_num_input() != BoardSignalConverter::numberOfSignalBits) {
+            std::clog << "Neural network has incompatible number of input neurons: " << network->get_num_input() << std::endl;
+            std::clog << "Expected: " << BoardSignalConverter::numberOfSignalBits << std::endl;
+            return nullptr;
+        } else if (network->get_num_output() != 4) {
+            std::clog << "Neural network has incompatible number of output neurons: " << network->get_num_output() << std::endl;
+            std::clog << "Expected: 4" << std::endl;
+            return nullptr;
+        }
         return network;
     } catch (...) {
+        std::clog << "Unknown exception caught" << std::endl;
         return nullptr;
     }
 }
@@ -122,7 +132,42 @@ void NetworkTeacher::computeQValues(const ReplayMemory &replayMemory)
 
 void NetworkTeacher::performTraining()
 {
+    _network->set_learning_rate(static_cast<float>(_arguments->learningRate));
+    _network->set_learning_momentum(static_cast<float>(_arguments->momentum));
 
+    for (unsigned epoch = 1; epoch <= _arguments->maxEpochs && !_sigIntCaught; ++epoch) {
+        auto trainingBatch = _replayMemory->sampleBatch(static_cast<unsigned int>(_replayMemory->currentSize()));
+        unsigned age = 0;
+        double totalLoss = 0.0;
+
+        for (auto &state: trainingBatch) {
+            if (_sigIntCaught)
+                break;
+
+            totalLoss += trainNetwork(state);
+            ++age;
+            if (age % 1000 == 0)
+                printStats(totalLoss, epoch, age);
+        }
+
+        if (age % 1000 != 0)
+            printStats(totalLoss, epoch, age);
+    }
+}
+
+double NetworkTeacher::trainNetwork(const QLearningState *state)
+{
+    double loss = 0.0;
+    // TODO
+    return loss;
+}
+
+void NetworkTeacher::printStats(double totalLoss, unsigned epoch, unsigned age)
+{
+    std::cout << "epoch: " << epoch
+              << "\tage: " << age
+              << "\tloss: " << totalLoss
+              << "\taverage loss: " << totalLoss / age << std::endl;
 }
 
 bool NetworkTeacher::serializeNetwork()
