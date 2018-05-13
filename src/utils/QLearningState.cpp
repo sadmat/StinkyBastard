@@ -118,8 +118,9 @@ void QLearningState::deserializeReinforcement(const Json::Value &json)
 {
     if (json.isMember(ReinforcementKey)) {
         auto reinforcementJson = json[ReinforcementKey];
-        if (reinforcementJson.type() != Json::realValue) {
-            throw std::runtime_error("reinforcement field is not a real value");
+        if (reinforcementJson.type() != Json::realValue &&
+            reinforcementJson.type() != Json::intValue) {
+            throw std::runtime_error("reinforcement field is not real nor integer value");
         }
         _reward = reinforcementJson.asDouble();
     } else {
