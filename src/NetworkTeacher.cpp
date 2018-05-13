@@ -158,7 +158,22 @@ void NetworkTeacher::performTraining()
 double NetworkTeacher::trainNetwork(const QLearningState *state)
 {
     double loss = 0.0;
-    // TODO
+    auto inputs = const_cast<double *>(&(state->boardSignal()[0]));
+    double outputs[4];
+    double targetValue = _qvalueCache.at(state);
+
+    if (state->isInTerminalState() || state->takenAction() == Game2048Core::Direction::None) {
+        for (unsigned long i = 0; i < sizeof(outputs) / sizeof(outputs[0]); ++i)
+            outputs[i] = targetValue;
+    } else {
+        auto response = _network->run(inputs);
+        for (unsigned long i = 0; i < sizeof(outputs) / sizeof(outputs[0]); ++i)
+            outputs[i] = response[i];
+        auto targetNeuron = static_cast<unsigned>(state->takenAction());
+        outputs[targetNeuron] = targetValue;
+    }
+
+    _network->train(inputs, outputs);
     return loss;
 }
 

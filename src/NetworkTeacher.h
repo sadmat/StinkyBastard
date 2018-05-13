@@ -37,7 +37,7 @@ private:
     bool _sigIntCaught;
     std::unique_ptr<FANN::neural_net> _network;
     std::unique_ptr<ReplayMemory> _replayMemory;
-    std::map<QLearningState *, double> _qvalueCache;
+    std::map<const QLearningState *, double> _qvalueCache;
 };
 
 }
