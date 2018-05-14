@@ -12,17 +12,16 @@ namespace nn2048
 static const std::string SizeKey = "memorySize";
 static const std::string StatesKey = "states";
 
-ReplayMemory::ReplayMemory()
+ReplayMemory::ReplayMemory():
+    _size(0)
 {
-    ReplayMemory(0);
+    initializeRandom();
 }
 
 ReplayMemory::ReplayMemory(unsigned size):
     _size(size)
 {
-    std::random_device randomDevice;
-    std::uniform_int_distribution<unsigned> distribution(0, static_cast<unsigned>(time(nullptr)));
-    srand(distribution(randomDevice));
+    initializeRandom();
 }
 
 ReplayMemory::ReplayMemory(const std::string &fileName)
@@ -66,6 +65,13 @@ ReplayMemory::ReplayMemory(const std::string &fileName)
     } else {
         throw std::runtime_error("Missing replay memory states array");
     }
+}
+
+void ReplayMemory::initializeRandom()
+{
+    std::random_device randomDevice;
+    std::uniform_int_distribution<unsigned> distribution(0, static_cast<unsigned>(time(nullptr)));
+    srand(distribution(randomDevice));
 }
 
 bool ReplayMemory::serialize(const std::string &fileName) const
