@@ -40,6 +40,9 @@ public:
     const std::deque<std::unique_ptr<QLearningState>> &states() const { return _memory; }
 
 private:
+    void initializeRandom();
+
+private:
     unsigned _size;
     std::deque<std::unique_ptr<QLearningState>> _memory;
 };
