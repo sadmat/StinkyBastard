@@ -6,25 +6,19 @@
 namespace nn2048
 {
 
-NetworkCreator::NetworkCreator(const std::vector<unsigned> &structure,
-                               const std::string &fileName,
-                               double distributionAmplitude,
-                               bool fannNetwork):
-    _structure(structure),
-    _fileName(fileName),
-    _distributionAmplitude(distributionAmplitude),
-    _fannNetwork(fannNetwork)
+NetworkCreator::NetworkCreator(std::unique_ptr<NetworkCreatorArguments> arguments) :
+    _arguments(std::move(arguments))
 {}
 
 int NetworkCreator::run()
 {
-    if (_structure.size() < 2)
+    if (_arguments->networkStructure.size() < 2)
     {
         std::cerr << "Network structure has to have at least two values (input count, neuron count)." << std::endl;
         return 0;
     }
 
-    if (!_fannNetwork)
+    if (!_arguments->createFannNetwork)
     {
         std::cout << "Creating network... ";
         auto network = createNetwork();
@@ -63,10 +57,10 @@ std::unique_ptr<NeuralNetwork::Network> NetworkCreator::createNetwork() const
 NeuralNetwork::LayerVector NetworkCreator::createLayers() const
 {
     NeuralNetwork::LayerVector layers;
-    layers.reserve(_structure.size() - 1);
-    for (unsigned i = 1; i < _structure.size(); ++i)
+    layers.reserve(_arguments->networkStructure.size() - 1);
+    for (unsigned i = 1; i < _arguments->networkStructure.size(); ++i)
     {
-        auto layer = createLayer(_structure[i - 1], _structure[i]);
+        auto layer = createLayer(_arguments->networkStructure[i - 1], _arguments->networkStructure[i]);
         layers.push_back(std::move(layer));
     }
     return layers;
@@ -84,7 +78,7 @@ NeuralNetwork::NeuronVector NetworkCreator::createNeurons(unsigned inputCount, u
     for (unsigned i = 0; i < neuronCount; ++i)
     {
         auto neuron = std::make_unique<NeuralNetwork::Neuron>(inputCount);
-        neuron->randomize(_distributionAmplitude);
+        neuron->randomize(_arguments->weightDistribution);
         neurons.push_back(std::move(neuron));
     }
     return neurons;
@@ -97,11 +91,11 @@ void NetworkCreator::serialize(const NeuralNetwork::Network *network) const
         std::cout << "Serializing...";
         std::cout.flush();
 
-        std::ofstream file(_fileName);
+        std::ofstream file(_arguments->networkFileName);
         if (!file.is_open())
         {
             std::cout << "failed" << std::endl;
-            std::cerr << "Could not open file " << _fileName << std::endl;
+            std::cerr << "Could not open file " << _arguments->networkFileName << std::endl;
             return;
         }
 
@@ -119,11 +113,12 @@ void NetworkCreator::serialize(const NeuralNetwork::Network *network) const
 std::unique_ptr<FANN::neural_net> NetworkCreator::createFann() const
 {
     FANN::network_type_enum networkType = FANN::LAYER;
-    unsigned layerCount = static_cast<unsigned>(_structure.size());
-    const unsigned *layerSizes = &_structure[0];
+    unsigned layerCount = static_cast<unsigned>(_arguments->networkStructure.size());
+    const unsigned *layerSizes = &(_arguments->networkStructure[0]);
     auto network = std::make_unique<FANN::neural_net>(networkType, layerCount, layerSizes);
 
-    network->randomize_weights(-_distributionAmplitude / 2.0, _distributionAmplitude / 2.0);
+    double weightDistribution = _arguments->weightDistribution;
+    network->randomize_weights(-weightDistribution / 2.0, weightDistribution / 2.0);
     network->set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC);
     network->set_activation_function_output(FANN::LINEAR);
 
@@ -133,7 +128,7 @@ std::unique_ptr<FANN::neural_net> NetworkCreator::createFann() const
 void NetworkCreator::serializeFann(FANN::neural_net *network) const
 {
     std::cout << "Serializing... ";
-    if (network->save(_fileName))
+    if (network->save(_arguments->networkFileName))
         std::cout << "ok" << std::endl;
     else
         std::cout << "failed" << std::endl;

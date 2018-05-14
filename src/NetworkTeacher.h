@@ -2,10 +2,13 @@
 #define NETWORKTEACHER_H
 
 #include "Application.h"
-#include <string>
-#include <vector>
 #include <memory>
-#include <LearningNetwork.h>
+#include <map>
+#include <vector>
+#include <doublefann.h>
+#include <fann_cpp.h>
+#include "arguments/NetworkTeacherArguments.h"
+#include "utils/ReplayMemory.h"
 
 namespace nn2048
 {
@@ -13,32 +16,28 @@ namespace nn2048
 class NetworkTeacher: public Application
 {
 public:
-    NetworkTeacher(const std::string &networkFileName,
-                   const std::string &learningSetsFileName,
-                   unsigned maxEpochs,
-                   double minError,
-                   double learningRate,
-                   double momentum);
+    NetworkTeacher(std::unique_ptr<NetworkTeacherArguments> arguments);
 
     int run();
     void onSigInt();
 
 protected:
-    std::unique_ptr<NeuralNetwork::LearningNetwork> loadNeuralNetwork() const;
-    std::vector<NeuralNetwork::LearningSet> loadLearningSets() const;
-    void performLearning(NeuralNetwork::LearningNetwork *network,
-                         const std::vector<NeuralNetwork::LearningSet> &learningSets) const;
-    void serializeNetwork(const NeuralNetwork::LearningNetwork *network) const;
+    bool initialize();
+    std::unique_ptr<FANN::neural_net> loadNeuralNetwork();
+    std::unique_ptr<ReplayMemory> loadReplayMemory();
+    std::vector<std::string> replayMemoryFileNames();
+    void computeQValues(const ReplayMemory &replayMemory);
+    void performTraining();
+    double trainNetwork(const QLearningState *state);
+    void printStats(double totalLoss, unsigned epoch, unsigned age);
+    bool serializeNetwork();
 
 private:
-    std::string _networkFileName;
-    std::string _learningSetsFileName;
-    unsigned _maxEpochs;
-    double _minError;
-    double _learningRate;
-    double _momentum;
-    bool _sigIntCought;
-    std::unique_ptr<NeuralNetwork::LearningNetwork> _network;
+    std::unique_ptr<NetworkTeacherArguments> _arguments;
+    bool _sigIntCaught;
+    std::unique_ptr<FANN::neural_net> _network;
+    std::unique_ptr<ReplayMemory> _replayMemory;
+    std::map<const QLearningState *, double> _qvalueCache;
 };
 
 }

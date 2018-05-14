@@ -29,7 +29,8 @@ WebApplication::WebApplication(const Wt::WEnvironment &env, const NeuralNetwork:
     Wt::WApplication(env),
     _highscoreThreshold(highscoreThreshold),
     _gameCore(std::make_unique<GameCore>(GAME_BOARD_SIZE)),
-    _gameStateTracker(std::make_unique<GameStateTracker>(_gameCore.get()))
+    _gameStateTracker(std::make_unique<GameStateTracker>(_gameCore.get())),
+    _replayMemoryTracker(std::make_unique<ReplayMemoryTracker>(_gameCore.get()))
 {
     setTitle("Bastard - 2048 game played by neural network");
     root()->setContentAlignment(Wt::AlignmentFlag::Center);
@@ -41,7 +42,7 @@ WebApplication::WebApplication(const Wt::WEnvironment &env, const NeuralNetwork:
     setupGameController(network);
 
     _gameCore->onReset.connect([this] () {
-        serializeGameHistory();
+        serializeReplayMemory();
         _gameWidget->boardWidget()->onReset();
         _gameWidget->headerWidget()->setScore(0);
     });
@@ -55,7 +56,7 @@ WebApplication::WebApplication(const Wt::WEnvironment &env, const NeuralNetwork:
         _gameWidget->boardWidget()->onGameStateChanged(state);
     });
     _gameCore->onGameOver.connect([this] () {
-        serializeGameHistory();
+        serializeReplayMemory();
     });
     _gameCore->onScoreUpdated.connect([this] (unsigned int score) {
         scoreUpdated(score);
@@ -105,19 +106,21 @@ void WebApplication::showInitialTiles() const
     _gameWidget->boardWidget()->setInitialTiles(positions[0], positions[1]);
 }
 
-void WebApplication::serializeGameHistory() const
+void WebApplication::serializeReplayMemory() const
 {
     if (_gameCore->state().score < _highscoreThreshold)
     {
         _gameStateTracker->reset();
+        _replayMemoryTracker->reset();
         return;
     }
     std::string fileName = appRoot();
     Wt::WDateTime dateTime = Wt::WDateTime::currentDateTime();
     fileName += dateTime.toString("yyyy-MM-dd HH.mm.ss.zzz", true).toUTF8();
     fileName += ".json";
-    GameHistorySerializer::serialize(_gameStateTracker->moves(), fileName);
+    _replayMemoryTracker->serializeReplayMemory(fileName);
     _gameStateTracker->reset();
+    _replayMemoryTracker->reset();
 }
 
 void WebApplication::scoreUpdated(unsigned int score)

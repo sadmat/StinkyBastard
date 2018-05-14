@@ -11,17 +11,33 @@ namespace nn2048
 class ReplayMemory
 {
 public:
+    /// Initializes replay memory without size constraint
+    ReplayMemory();
+
+    /// Initializes replay memory with size constraint
     ReplayMemory(unsigned size);
+
+    /// Initializes replay memory from json file
+    ReplayMemory(const std::string &fileName);
+
+    /// Serializes replay memory to json
+    bool serialize(const std::string &fileName) const;
 
     void addState(std::vector<double> boardSignal,
                   Game2048Core::Direction takenAction,
                   double reward,
+                  bool moveFailed,
                   bool isInTerminalState = false);
+    void addState(std::unique_ptr<QLearningState> state);
 
     std::vector<QLearningState const *> sampleBatch(unsigned size);
 
-    bool isFull() const { return _memory.size() == _size; }
+    bool isFull() const { return _size > 0 && _memory.size() == _size; }
     unsigned long currentSize() const { return _memory.size(); }
+
+    void takeStatesFrom(ReplayMemory &other);
+
+    const std::deque<std::unique_ptr<QLearningState>> &states() const { return _memory; }
 
 private:
     unsigned _size;
