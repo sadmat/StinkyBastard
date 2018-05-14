@@ -146,8 +146,9 @@ void NetworkTeacher::performTraining()
 
             totalLoss += trainNetwork(state);
             ++age;
-            if (age % 1000 == 0)
-                printStats(totalLoss, epoch, age);
+            // TODO: report interval from params
+//            if (age % 1000 == 0)
+//                printStats(totalLoss, epoch, age);
         }
 
         if (age % 1000 != 0)
