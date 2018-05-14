@@ -4,6 +4,7 @@
 #include <random>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 namespace nn2048
 {
@@ -26,6 +27,7 @@ ReplayMemory::ReplayMemory(unsigned size):
 
 ReplayMemory::ReplayMemory(const std::string &fileName)
 {
+    ReplayMemory(0);
     std::ifstream file(fileName);
     if (!file)
         throw std::runtime_error("Deserialization failed. Cannot open file " + fileName);
@@ -69,7 +71,15 @@ ReplayMemory::ReplayMemory(const std::string &fileName)
 bool ReplayMemory::serialize(const std::string &fileName) const
 {
     auto json = Json::Value(Json::objectValue);
-    json[SizeKey] = _size > 0 ? _size : static_cast<unsigned>(_memory.size());
+    if (_size != 0) {
+        std::clog << "Serializing replay memory _size: " << _size << std::endl;
+        json[SizeKey] = _size;
+    }
+    else {
+        auto memorySize = static_cast<unsigned>(_memory.size());
+        std::clog << "Serializing replay memory, _memory.size(): " << _memory.size() << ", memorySize: " << memorySize << std::endl;
+        json[SizeKey] = memorySize;
+    }
 
     auto statesArray = Json::Value(Json::arrayValue);
     for (const auto &state: _memory) {

@@ -41,7 +41,7 @@ WebApplication::WebApplication(const Wt::WEnvironment &env, const NeuralNetwork:
 
     setupGameController(network);
 
-    _gameCore->onReset.connect([this] () {
+    _gameCore->onBeingReset.connect([this] () {
         serializeReplayMemory();
         _gameWidget->boardWidget()->onReset();
         _gameWidget->headerWidget()->setScore(0);

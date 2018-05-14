@@ -18,7 +18,7 @@ ReplayMemoryTracker::ReplayMemoryTracker(Game2048Core::GameCore *gameCore):
         onTilesMoved(direction, succeeded);
     });
 
-    _gameCore->onReset.connect([this] () {
+    _gameCore->onBeingReset.connect([this] () {
         onGameReset();
     });
 
