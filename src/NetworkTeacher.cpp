@@ -92,7 +92,9 @@ std::unique_ptr<ReplayMemory> NetworkTeacher::loadReplayMemory()
         return nullptr;
 
     auto replayMemory = std::make_unique<ReplayMemory>();
+    auto fileCounter = 1;
     for (auto &fileName: fileNames) {
+        std::clog << "Loading file " << fileCounter << " of " << fileNames.size() << "..." << std::endl;
         try {
             auto gameReplay = std::make_unique<ReplayMemory>(fileName);
             computeQValues(*gameReplay);
@@ -101,6 +103,7 @@ std::unique_ptr<ReplayMemory> NetworkTeacher::loadReplayMemory()
             std::clog << "Replay memory loading failed: " << fileName << ", exception: " << ex.what() << std::endl;
             std::clog << "Omitting" << std::endl;
         }
+        ++fileCounter;
     }
     return replayMemory;
 }
