@@ -2,6 +2,7 @@
 #include <iostream>
 #include "utils/Defaults.h"
 #include "arguments/LearningSetsMakerArguments.h"
+#include "arguments/ReplayMemoryMergerArguments.h"
 #include "arguments/NetworkCreatorArguments.h"
 #include "arguments/NetworkTeacherArguments.h"
 #include "arguments/QLearningArguments.h"
@@ -13,6 +14,11 @@ namespace nn2048
 void Helper::showHelp() const
 {
     std::cout << "Usage: " << _execName << " [mode] [mode arguments]" << std::endl << std::endl;
+
+    std::cout << "merge mode - merges replay memory files into one json used in training mode" << std::endl;
+    std::cout << "    " << ReplayMemoryMergerArguments::InputDirectoryArgument << " directory - input directory with replay memory json files" << std::endl;
+    std::cout << "    " << ReplayMemoryMergerArguments::OutputFileNameArgument << " file      - output replay memory file name" << std::endl << std::endl;
+
     std::cout << "convert mode - converts games recorded by Bastard into learning set" << std::endl;
     std::cout << "    " << LearningSetsMakerArguments::RecordsDirectoryArgument << " directory - recordings directory" << std::endl;
     std::cout << "    " << LearningSetsMakerArguments::OutputFileNameArgument   << " output    - output file name" << std::endl;
