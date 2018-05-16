@@ -4,14 +4,12 @@
 #include <cstring>
 #include <cmath>
 #include "Helper.h"
-#include "LearningSetsMaker.h"
 #include "ReplayMemoryMerger.h"
 #include "NetworkCreator.h"
 #include "NetworkTeacher.h"
 #include "QLearningTeacher.h"
 #include "WebAppLauncher.h"
 #include "utils/Defaults.h"
-#include "arguments/LearningSetsMakerArgumentsParser.h"
 #include "arguments/ReplayMemoryMergerArgumentsParser.h"
 #include "arguments/NetworkCreatorArgumentsParser.h"
 #include "arguments/NetworkTeacherArgumentsParser.h"
@@ -33,7 +31,6 @@ std::unique_ptr<Application> Launcher::application(int argc, char *argv[])
 RunMode Launcher::parseRunMode(const std::string &mode)
 {
     static std::map<std::string, RunMode> dictionary {
-        { "convert", RunMode::MakeLearningSets },
         { "merge", RunMode::MergeReplayMemory },
         { "create", RunMode::CreateNetwork },
         { "learn", RunMode::NetworkLearning },
@@ -47,8 +44,6 @@ std::unique_ptr<Application> Launcher::applicationForRunMode(RunMode mode, int a
 {
     switch (mode)
     {
-    case RunMode::MakeLearningSets:
-        return setsMakerApplication(argc, argv);
     case RunMode::MergeReplayMemory:
         return replayMemoryMergerApplication(argc, argv);
     case RunMode::CreateNetwork:
@@ -68,16 +63,6 @@ std::unique_ptr<Application> Launcher::applicationForRunMode(RunMode mode, int a
 std::unique_ptr<Application> Launcher::helperApplication(const std::string &execName)
 {
     return std::make_unique<Helper>(execName);
-}
-
-std::unique_ptr<Application> Launcher::setsMakerApplication(int argc, char *argv[])
-{
-    auto parser = LearningSetsMakerArgumentsParser(argc, argv);
-    auto arguments = parser.parsedArguments();
-    if (!arguments)
-        return nullptr;
-    auto pointer = dynamic_cast<LearningSetsMakerArguments *>(arguments.release());
-    return std::make_unique<LearningSetsMaker>(std::unique_ptr<LearningSetsMakerArguments>(pointer));
 }
 
 std::unique_ptr<Application> Launcher::replayMemoryMergerApplication(int argc, char *argv[])

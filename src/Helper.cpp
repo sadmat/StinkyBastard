@@ -19,11 +19,6 @@ void Helper::showHelp() const
     std::cout << "    " << ReplayMemoryMergerArguments::InputDirectoryArgument << " directory - input directory with replay memory json files" << std::endl;
     std::cout << "    " << ReplayMemoryMergerArguments::OutputFileNameArgument << " file      - output replay memory file name" << std::endl << std::endl;
 
-    std::cout << "convert mode - converts games recorded by Bastard into learning set" << std::endl;
-    std::cout << "    " << LearningSetsMakerArguments::RecordsDirectoryArgument << " directory - recordings directory" << std::endl;
-    std::cout << "    " << LearningSetsMakerArguments::OutputFileNameArgument   << " output    - output file name" << std::endl;
-    std::cout << "    " << LearningSetsMakerArguments::MinScoreArgument         << " score     - minimum score (optional)" << std::endl << std::endl;
-
     std::cout << "create mode - creates new neural network with random weights" << std::endl;
     std::cout << "    " << NetworkCreatorArguments::NetworkStructureArgument   << " structure - network structure (eg. 2,3,4 - 2 inputs, 3 hidden" << std::endl;
     std::cout << "                   neurons, 4 outputs)" << std::endl;
