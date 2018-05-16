@@ -43,6 +43,8 @@ set(SOURCES
     QLearningTeacher.cpp
     utils/Reinforcement.cpp
     utils/ReplayMemory.cpp
+    arguments/ReplayMemoryMergerArguments.cpp
+    arguments/ReplayMemoryMergerArgumentsParser.cpp
     utils/ReplayMemoryTracker.cpp
     web/ScoreWidget.cpp
     utils/TilePositionComparer.cpp
@@ -82,6 +84,8 @@ set(HEADERS
     QLearningTeacher.h
     utils/Reinforcement.h
     utils/ReplayMemory.h
+    arguments/ReplayMemoryMergerArguments.h
+    arguments/ReplayMemoryMergerArgumentsParser.h
     utils/ReplayMemoryTracker.h
     web/ScoreWidget.h
     utils/TilePositionComparer.h
