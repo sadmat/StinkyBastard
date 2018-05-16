@@ -43,6 +43,7 @@ set(SOURCES
     QLearningTeacher.cpp
     utils/Reinforcement.cpp
     utils/ReplayMemory.cpp
+    ReplayMemoryMerger.cpp
     arguments/ReplayMemoryMergerArguments.cpp
     arguments/ReplayMemoryMergerArgumentsParser.cpp
     utils/ReplayMemoryTracker.cpp
@@ -84,6 +85,7 @@ set(HEADERS
     QLearningTeacher.h
     utils/Reinforcement.h
     utils/ReplayMemory.h
+    ReplayMemoryMerger.h
     arguments/ReplayMemoryMergerArguments.h
     arguments/ReplayMemoryMergerArgumentsParser.h
     utils/ReplayMemoryTracker.h

@@ -5,12 +5,14 @@
 #include <cmath>
 #include "Helper.h"
 #include "LearningSetsMaker.h"
+#include "ReplayMemoryMerger.h"
 #include "NetworkCreator.h"
 #include "NetworkTeacher.h"
 #include "QLearningTeacher.h"
 #include "WebAppLauncher.h"
 #include "utils/Defaults.h"
 #include "arguments/LearningSetsMakerArgumentsParser.h"
+#include "arguments/ReplayMemoryMergerArgumentsParser.h"
 #include "arguments/NetworkCreatorArgumentsParser.h"
 #include "arguments/NetworkTeacherArgumentsParser.h"
 #include "arguments/QLearningArgumentsParser.h"
@@ -32,6 +34,7 @@ RunMode Launcher::parseRunMode(const std::string &mode)
 {
     static std::map<std::string, RunMode> dictionary {
         { "convert", RunMode::MakeLearningSets },
+        { "merge", RunMode::MergeReplayMemory },
         { "create", RunMode::CreateNetwork },
         { "learn", RunMode::NetworkLearning },
         { "qlearn", RunMode::QNetworkLearning },
@@ -46,6 +49,8 @@ std::unique_ptr<Application> Launcher::applicationForRunMode(RunMode mode, int a
     {
     case RunMode::MakeLearningSets:
         return setsMakerApplication(argc, argv);
+    case RunMode::MergeReplayMemory:
+        return replayMemoryMergerApplication(argc, argv);
     case RunMode::CreateNetwork:
         return networkCreatorApplication(argc, argv);
     case RunMode::NetworkLearning:
@@ -73,6 +78,16 @@ std::unique_ptr<Application> Launcher::setsMakerApplication(int argc, char *argv
         return nullptr;
     auto pointer = dynamic_cast<LearningSetsMakerArguments *>(arguments.release());
     return std::make_unique<LearningSetsMaker>(std::unique_ptr<LearningSetsMakerArguments>(pointer));
+}
+
+std::unique_ptr<Application> Launcher::replayMemoryMergerApplication(int argc, char *argv[])
+{
+    auto parser = ReplayMemoryMergerArgumentsParser(argc, argv);
+    auto arguments = parser.parsedArguments();
+    if (!arguments)
+        return nullptr;
+    auto pointer = dynamic_cast<ReplayMemoryMergerArguments *>(arguments.release());
+    return std::make_unique<ReplayMemoryMerger>(std::unique_ptr<ReplayMemoryMergerArguments>(pointer));
 }
 
 std::unique_ptr<Application> Launcher::networkCreatorApplication(int argc, char *argv[])

@@ -13,6 +13,7 @@ enum class RunMode
 {
     HelpMode,
     MakeLearningSets,
+    MergeReplayMemory,
     CreateNetwork,
     NetworkLearning,
     QNetworkLearning,
@@ -29,6 +30,7 @@ protected:
     static std::unique_ptr<Application> applicationForRunMode(RunMode mode, int argc, char *argv[]);
     static std::unique_ptr<Application> helperApplication(const std::string &execName);
     static std::unique_ptr<Application> setsMakerApplication(int argc, char *argv[]);
+    static std::unique_ptr<Application> replayMemoryMergerApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> networkCreatorApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> networkTeacherApplication(int argc, char *argv[]);
     static std::unique_ptr<Application> qNetworkTeacherApplication(int argc, char *argv[]);
