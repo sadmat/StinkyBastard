@@ -22,6 +22,7 @@ private:
     bool parseEpsilonFactor(double &output);
     bool parseReplayMemorySize(unsigned &output);
     bool parseReplayBatchSize(unsigned &output);
+    bool parseReplayMemoryFileName(std::string &output);
 };
 
 }

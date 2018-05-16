@@ -19,6 +19,7 @@ public:
     double epsilonFactor = DefaultEpsilonFactor;
     unsigned replayMemorySize = DefaultReplayMemorySize;
     unsigned replayBatchSize = DefaultReplayBatchSize;
+    std::string replayMemoryFileName = "";
 
     const static std::string NetworkFileNameArgument;
     const static std::string MaxAgeArgument;
@@ -29,6 +30,7 @@ public:
     const static std::string EpsilonFactorArgument;
     const static std::string ReplayMemorySizeArgument;
     const static std::string ReplayBatchSizeArgument;
+    const static std::string ReplayMemoryFileNameArgument;
 };
 
 }

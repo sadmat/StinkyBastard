@@ -40,6 +40,9 @@ std::unique_ptr<Arguments> QLearningArgumentsParser::parsedArguments()
         } else if (currentArg == QLearningArguments::ReplayBatchSizeArgument) {
             if (!parseReplayBatchSize(arguments->replayBatchSize))
                 return nullptr;
+        } else if (currentArg == QLearningArguments::ReplayMemoryFileNameArgument) {
+            if (!parseReplayMemoryFileName(arguments->replayMemoryFileName))
+                return nullptr;
         } else {
             std::cerr << "Unknown qlearning argument: " << currentArg << std::endl;
             return nullptr;
@@ -158,6 +161,16 @@ bool QLearningArgumentsParser::parseReplayBatchSize(unsigned &output)
         std::cerr << "Could not parse replay batch size" << std::endl;
         return false;
     }
+    return true;
+}
+
+bool QLearningArgumentsParser::parseReplayMemoryFileName(std::string &output)
+{
+    if (!hasParameter(_currentArgIndex)) {
+        std::cerr << "Replay memory file name argument requires parameter" << std::endl;
+        return false;
+    }
+    output = _argv[++_currentArgIndex];
     return true;
 }
 
