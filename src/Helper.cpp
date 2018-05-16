@@ -1,7 +1,6 @@
 #include "Helper.h"
 #include <iostream>
 #include "utils/Defaults.h"
-#include "arguments/LearningSetsMakerArguments.h"
 #include "arguments/ReplayMemoryMergerArguments.h"
 #include "arguments/NetworkCreatorArguments.h"
 #include "arguments/NetworkTeacherArguments.h"
