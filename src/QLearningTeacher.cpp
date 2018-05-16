@@ -20,7 +20,8 @@ const unsigned gameBoardSideLength = 4;
 QLearningTeacher::QLearningTeacher(std::unique_ptr<QLearningArguments> arguments) :
       _arguments(std::move(arguments)),
       _network(nullptr),
-      _game(std::make_unique<Game2048Core::GameCore>(gameBoardSideLength))
+      _game(std::make_unique<Game2048Core::GameCore>(gameBoardSideLength)),
+      _replayMemory(std::make_unique<ReplayMemory>(arguments->replayMemorySize))
 {}
 
 int QLearningTeacher::run()
@@ -34,6 +35,17 @@ int QLearningTeacher::run()
     }
     if (!_network)
         return -1;
+
+    auto replayMemory = loadReplayMemory();
+    if (!replayMemory)
+        return -1;
+    else if (replayMemory->currentSize() > _arguments->replayMemorySize) {
+        std::cout << "Replay memory size (" << replayMemory->currentSize() << ") is greater than max replay memory size ";
+        std::cout << "(" << _arguments->replayMemorySize << ")" << std::endl;
+        std::cout << "Replay memory will contain only game states up to max size" << std::endl;
+    }
+    _replayMemory->takeStatesFrom(*replayMemory);
+
     std::cout << "Learning starts..." << std::endl;
     performLearning();
     serializeNetwork();
@@ -65,9 +77,25 @@ std::unique_ptr<FANN::neural_net> QLearningTeacher::loadNeuralNetwork() const
     return nullptr;
 }
 
+std::unique_ptr<ReplayMemory> QLearningTeacher::loadReplayMemory() const
+{
+    try {
+        std::cout << "Loading replay memory... ";
+        std::cout.flush();
+
+        auto replayMemory = std::make_unique<ReplayMemory>(_arguments->replayMemoryFileName);
+
+        std::cout << "ok" << std::endl;
+        return replayMemory;
+    } catch (std::exception &ex) {
+        std::cout << "failed" << std::endl;
+        std::cerr << "Couldn't load replay memory. Exception thrown: " << ex.what() << std::endl;
+    }
+    return nullptr;
+}
+
 void QLearningTeacher::performLearning() const
 {
-    ReplayMemory replayMemory(_arguments->replayMemorySize);
     unsigned age = 0;
     unsigned agentStepCount = 0;
     unsigned illegalMoves = 0;
@@ -121,13 +149,13 @@ void QLearningTeacher::performLearning() const
 
         // Store replay
         if (!moveFailed || prevDirection != pickedDirection || !prevMoveFailed)
-            replayMemory.addState(currentStateSignal, pickedDirection, reward, moveFailed, _game->isGameOver());
+            _replayMemory->addState(currentStateSignal, pickedDirection, reward, moveFailed, _game->isGameOver());
 
         // Get training batch
         unsigned batchSize = _arguments->replayBatchSize;
-        if (batchSize > replayMemory.currentSize())
-            batchSize = static_cast<unsigned>(replayMemory.currentSize());
-        auto trainingBatch = replayMemory.sampleBatch(batchSize);
+        if (batchSize > _replayMemory->currentSize())
+            batchSize = static_cast<unsigned>(_replayMemory->currentSize());
+        auto trainingBatch = _replayMemory->sampleBatch(batchSize);
 
         auto loss = trainNetwork(trainingBatch);
         lossSum += loss;

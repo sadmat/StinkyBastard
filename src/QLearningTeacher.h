@@ -13,6 +13,7 @@
 #include <doublefann.h>
 #include <fann_cpp.h>
 #include "arguments/QLearningArguments.h"
+#include "utils/ReplayMemory.h"
 
 namespace nn2048
 {
@@ -29,6 +30,7 @@ public:
 
 protected:
     std::unique_ptr<FANN::neural_net> loadNeuralNetwork() const;
+    std::unique_ptr<ReplayMemory> loadReplayMemory() const;
     void performLearning() const;
     double trainNetwork(const std::vector<const QLearningState *> &batch) const;
     void serializeNetwork() const;
@@ -40,6 +42,7 @@ private:
     bool _sigIntCaught;
     std::unique_ptr<FANN::neural_net> _network;
     std::unique_ptr<Game2048Core::GameCore> _game;
+    std::unique_ptr<ReplayMemory> _replayMemory;
 };
 
 }
