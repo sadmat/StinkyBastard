@@ -21,7 +21,7 @@ QLearningTeacher::QLearningTeacher(std::unique_ptr<QLearningArguments> arguments
       _arguments(std::move(arguments)),
       _network(nullptr),
       _game(std::make_unique<Game2048Core::GameCore>(gameBoardSideLength)),
-      _replayMemory(std::make_unique<ReplayMemory>(arguments->replayMemorySize))
+      _replayMemory(std::make_unique<ReplayMemory>(_arguments->replayMemorySize))
 {}
 
 int QLearningTeacher::run()
