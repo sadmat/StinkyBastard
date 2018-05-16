@@ -36,15 +36,17 @@ int QLearningTeacher::run()
     if (!_network)
         return -1;
 
-    auto replayMemory = loadReplayMemory();
-    if (!replayMemory)
-        return -1;
-    else if (replayMemory->currentSize() > _arguments->replayMemorySize) {
-        std::cout << "Replay memory size (" << replayMemory->currentSize() << ") is greater than max replay memory size ";
-        std::cout << "(" << _arguments->replayMemorySize << ")" << std::endl;
-        std::cout << "Replay memory will contain only game states up to max size" << std::endl;
+    if (_arguments->replayMemoryFileName.empty() == false) {
+        auto replayMemory = loadReplayMemory();
+        if (!replayMemory)
+            return -1;
+        else if (replayMemory->currentSize() > _arguments->replayMemorySize) {
+            std::cout << "Replay memory size (" << replayMemory->currentSize() << ") is greater than max replay memory size ";
+            std::cout << "(" << _arguments->replayMemorySize << ")" << std::endl;
+            std::cout << "Replay memory will contain only game states up to max size" << std::endl;
+        }
+        _replayMemory->takeStatesFrom(*replayMemory);
     }
-    _replayMemory->takeStatesFrom(*replayMemory);
 
     std::cout << "Learning starts..." << std::endl;
     performLearning();
