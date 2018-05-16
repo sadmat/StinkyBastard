@@ -78,12 +78,10 @@ bool ReplayMemory::serialize(const std::string &fileName) const
 {
     auto json = Json::Value(Json::objectValue);
     if (_size != 0) {
-        std::clog << "Serializing replay memory _size: " << _size << std::endl;
         json[SizeKey] = _size;
     }
     else {
         auto memorySize = static_cast<unsigned>(_memory.size());
-        std::clog << "Serializing replay memory, _memory.size(): " << _memory.size() << ", memorySize: " << memorySize << std::endl;
         json[SizeKey] = memorySize;
     }
 

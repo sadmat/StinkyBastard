@@ -49,7 +49,7 @@ std::unique_ptr<ReplayMemory> ReplayMemoryMerger::loadReplayMemory(const std::ve
     auto replayMemory = std::make_unique<ReplayMemory>();
     auto fileCounter = 1;
     for (auto &fileName: fileNames) {
-        std::clog << "Loading file " << fileCounter << " of " << fileNames.size() << "...\r" << std::endl;
+        std::clog << "Loading file " << fileCounter << " of " << fileNames.size() << "...\r";
         try {
             auto gameReplay = std::make_unique<ReplayMemory>(fileName);
             replayMemory->takeStatesFrom(*gameReplay);
