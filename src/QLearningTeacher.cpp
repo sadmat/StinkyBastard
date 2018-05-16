@@ -183,25 +183,36 @@ double QLearningTeacher::trainNetwork(const std::vector<const QLearningState *> 
         for (unsigned i = 0; i < outputCount; ++i)
             outputs[i] = response[i];
 
-        double targetValue = state->receivedReward();
-        unsigned targetOutputIndex = static_cast<unsigned>(state->takenAction());
-        if (state->hasMoveFailed()) {
-            targetValue += _arguments->gamma * outputs[targetOutputIndex];
-        } else if (state->isInTerminalState() == false && state->nextState() != nullptr) {
-            auto nextStateInputs = const_cast<double *>(&(state->nextState()->boardSignal()[0]));
-            auto nextStateOutputs = _network->run(nextStateInputs);
-            double nextActionQValue = nextStateOutputs[0];
-            for (unsigned j = 1; j < outputCount; ++j)
-                if (nextStateOutputs[j] > nextActionQValue)
-                    nextActionQValue = nextStateOutputs[j];
+        if (state->takenAction() == Game2048Core::Direction::None) {
+            double loss = 0.0;
+            for (unsigned i = 0; i < outputCount; ++i) {
+                double oneLoss = (state->receivedReward() - outputs[i]);
+                loss += oneLoss * oneLoss;
+                outputs[i] = state->receivedReward();
+            }
+            lossSum += loss / outputCount;
+        } else {
+            double targetValue = state->receivedReward();
+            unsigned targetOutputIndex = static_cast<unsigned>(state->takenAction());
+            if (state->hasMoveFailed()) {
+                targetValue += _arguments->gamma * outputs[targetOutputIndex];
+            } else if (state->isInTerminalState() == false && state->nextState() != nullptr) {
+                auto nextStateInputs = const_cast<double *>(&(state->nextState()->boardSignal()[0]));
+                auto nextStateOutputs = _network->run(nextStateInputs);
+                double nextActionQValue = nextStateOutputs[0];
+                for (unsigned j = 1; j < outputCount; ++j)
+                    if (nextStateOutputs[j] > nextActionQValue)
+                        nextActionQValue = nextStateOutputs[j];
 
-            targetValue += _arguments->gamma * nextActionQValue;
+                targetValue += _arguments->gamma * nextActionQValue;
+            }
+            double loss = (targetValue - outputs[targetOutputIndex]);
+            loss *= loss;
+            loss *= 0.5;
+            lossSum += loss;
+            outputs[targetOutputIndex] = targetValue;
         }
-        double loss = (targetValue - outputs[targetOutputIndex]);
-        loss *= loss;
-        loss *= 0.5;
-        lossSum += loss;
-        outputs[targetOutputIndex] = targetValue;
+
 
         _network->train(inputs, outputs);
     }
